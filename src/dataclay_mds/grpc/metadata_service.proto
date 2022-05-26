@@ -1,9 +1,11 @@
 syntax = "proto3";
 
+package dataclay_mds.grpc.generated;
+
 service MetadataService {
 
     // Account Manager
-    rpc newAccount(NewAccountRequest) returns (NewAccountResponse) {}
+    rpc NewAccount(NewAccountRequest) returns (NewAccountResponse) {}
 }
 
 message NewAccountRequest {

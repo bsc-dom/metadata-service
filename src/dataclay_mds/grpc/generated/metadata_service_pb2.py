@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16metadata_service.proto\"7\n\x11NewAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"&\n\x12NewAccountResponse\x12\x10\n\x08username\x18\x01 \x01(\t2J\n\x0fMetadataService\x12\x37\n\nnewAccount\x12\x12.NewAccountRequest\x1a\x13.NewAccountResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16metadata_service.proto\x12\x1b\x64\x61taclay_mds.grpc.generated\"7\n\x11NewAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"&\n\x12NewAccountResponse\x12\x10\n\x08username\x18\x01 \x01(\t2\x82\x01\n\x0fMetadataService\x12o\n\nNewAccount\x12..dataclay_mds.grpc.generated.NewAccountRequest\x1a/.dataclay_mds.grpc.generated.NewAccountResponse\"\x00\x62\x06proto3')
 
 
 
@@ -23,14 +23,14 @@ _NEWACCOUNTRESPONSE = DESCRIPTOR.message_types_by_name['NewAccountResponse']
 NewAccountRequest = _reflection.GeneratedProtocolMessageType('NewAccountRequest', (_message.Message,), {
   'DESCRIPTOR' : _NEWACCOUNTREQUEST,
   '__module__' : 'metadata_service_pb2'
-  # @@protoc_insertion_point(class_scope:NewAccountRequest)
+  # @@protoc_insertion_point(class_scope:dataclay_mds.grpc.generated.NewAccountRequest)
   })
 _sym_db.RegisterMessage(NewAccountRequest)
 
 NewAccountResponse = _reflection.GeneratedProtocolMessageType('NewAccountResponse', (_message.Message,), {
   'DESCRIPTOR' : _NEWACCOUNTRESPONSE,
   '__module__' : 'metadata_service_pb2'
-  # @@protoc_insertion_point(class_scope:NewAccountResponse)
+  # @@protoc_insertion_point(class_scope:dataclay_mds.grpc.generated.NewAccountResponse)
   })
 _sym_db.RegisterMessage(NewAccountResponse)
 
@@ -38,10 +38,10 @@ _METADATASERVICE = DESCRIPTOR.services_by_name['MetadataService']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _NEWACCOUNTREQUEST._serialized_start=26
-  _NEWACCOUNTREQUEST._serialized_end=81
-  _NEWACCOUNTRESPONSE._serialized_start=83
-  _NEWACCOUNTRESPONSE._serialized_end=121
-  _METADATASERVICE._serialized_start=123
-  _METADATASERVICE._serialized_end=197
+  _NEWACCOUNTREQUEST._serialized_start=55
+  _NEWACCOUNTREQUEST._serialized_end=110
+  _NEWACCOUNTRESPONSE._serialized_start=112
+  _NEWACCOUNTRESPONSE._serialized_end=150
+  _METADATASERVICE._serialized_start=153
+  _METADATASERVICE._serialized_end=283
 # @@protoc_insertion_point(module_scope)

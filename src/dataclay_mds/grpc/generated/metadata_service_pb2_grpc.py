@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import metadata_service_pb2 as metadata__service__pb2
+import dataclay_mds.grpc.generated.metadata_service_pb2 as metadata__service__pb2
 
 
 class MetadataServiceStub(object):
@@ -14,8 +14,8 @@ class MetadataServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.newAccount = channel.unary_unary(
-                '/MetadataService/newAccount',
+        self.NewAccount = channel.unary_unary(
+                '/dataclay_mds.grpc.generated.MetadataService/NewAccount',
                 request_serializer=metadata__service__pb2.NewAccountRequest.SerializeToString,
                 response_deserializer=metadata__service__pb2.NewAccountResponse.FromString,
                 )
@@ -24,7 +24,7 @@ class MetadataServiceStub(object):
 class MetadataServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def newAccount(self, request, context):
+    def NewAccount(self, request, context):
         """Account Manager
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -34,14 +34,14 @@ class MetadataServiceServicer(object):
 
 def add_MetadataServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'newAccount': grpc.unary_unary_rpc_method_handler(
-                    servicer.newAccount,
+            'NewAccount': grpc.unary_unary_rpc_method_handler(
+                    servicer.NewAccount,
                     request_deserializer=metadata__service__pb2.NewAccountRequest.FromString,
                     response_serializer=metadata__service__pb2.NewAccountResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'MetadataService', rpc_method_handlers)
+            'dataclay_mds.grpc.generated.MetadataService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -50,7 +50,7 @@ class MetadataService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def newAccount(request,
+    def NewAccount(request,
             target,
             options=(),
             channel_credentials=None,
@@ -60,7 +60,7 @@ class MetadataService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MetadataService/newAccount',
+        return grpc.experimental.unary_unary(request, target, '/dataclay_mds.grpc.generated.MetadataService/NewAccount',
             metadata__service__pb2.NewAccountRequest.SerializeToString,
             metadata__service__pb2.NewAccountResponse.FromString,
             options, channel_credentials,
