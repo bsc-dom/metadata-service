@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package dataclay_mds.grpc.generated;
+package dataclay_mds.grpc.protos.generated;
 
 service MetadataService {
 

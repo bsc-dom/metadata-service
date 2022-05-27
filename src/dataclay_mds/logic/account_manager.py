@@ -1,4 +1,4 @@
-
+import json
 
 class AccountManager:
     
@@ -24,10 +24,18 @@ class AccountManager:
 
         # TODO: Validate admin account
         # TODO: Check that the username does not exists
-        # TODO: Store account in etcd
 
+        # Create json account
+        account = dict()
+        account['username'] = username
+        account['password'] = password
+        account['role'] = 'NORMAL'
+        account['namespaces'] = [None]
+        account['datatasets'] = [None]
+
+        # Store account in etcd
         key = f'/account/{username}'
-        value = f'The account is {username}:{password}'
+        value = json.dumps(account)
         self.etcd_client.put(key, value)
 
         return username

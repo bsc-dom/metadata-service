@@ -1,8 +1,8 @@
 import logging
 import traceback
 
-from dataclay_mds.grpc.generated import metadata_service_pb2_grpc
-from dataclay_mds.grpc.generated import metadata_service_pb2
+from dataclay_mds.grpc.protos.generated import metadata_service_pb2_grpc
+from dataclay_mds.grpc.protos.generated import metadata_service_pb2
 
 logger = logging.getLogger(__name__)
 

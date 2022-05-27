@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import dataclay_mds.grpc.generated.metadata_service_pb2 as metadata__service__pb2
+import dataclay_mds.grpc.protos.generated.metadata_service_pb2 as metadata__service__pb2
 
 
 class MetadataServiceStub(object):
@@ -15,7 +15,7 @@ class MetadataServiceStub(object):
             channel: A grpc.Channel.
         """
         self.NewAccount = channel.unary_unary(
-                '/dataclay_mds.grpc.generated.MetadataService/NewAccount',
+                '/dataclay_mds.grpc.protos.generated.MetadataService/NewAccount',
                 request_serializer=metadata__service__pb2.NewAccountRequest.SerializeToString,
                 response_deserializer=metadata__service__pb2.NewAccountResponse.FromString,
                 )
@@ -41,7 +41,7 @@ def add_MetadataServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'dataclay_mds.grpc.generated.MetadataService', rpc_method_handlers)
+            'dataclay_mds.grpc.protos.generated.MetadataService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -60,7 +60,7 @@ class MetadataService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dataclay_mds.grpc.generated.MetadataService/NewAccount',
+        return grpc.experimental.unary_unary(request, target, '/dataclay_mds.grpc.protos.generated.MetadataService/NewAccount',
             metadata__service__pb2.NewAccountRequest.SerializeToString,
             metadata__service__pb2.NewAccountResponse.FromString,
             options, channel_credentials,
