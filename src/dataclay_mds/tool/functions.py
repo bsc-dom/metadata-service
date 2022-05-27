@@ -29,11 +29,9 @@ class MDSClient:
 
 def new_account(username, password):
     logger.info(f'Creating "{username}" account')
-
     mds_client = MDSClient(HOSTNAME, PORT)
     response = mds_client.new_account(username, password)
-
-    logger.debug(f'Created account ({username}). Response -> {response}')
+    logger.debug(f'Created account ({username}). Response -> {response.username}')
 
 
 def get_backends(username, password):

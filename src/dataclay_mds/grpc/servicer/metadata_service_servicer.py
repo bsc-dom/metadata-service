@@ -15,7 +15,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewAccount(self, request, context):
         try:
-            pass
+            result = self.metadata_service.new_account(request.username, request.password)
         except Exception as ex:
             traceback.print_exc()
             return self.get_exception_info(ex)

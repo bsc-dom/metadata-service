@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package etcd_model;
+
+enum Language {
+  UNSPECIFIED = 0;
+  PYTHON = 1;
+  JAVA = 2;
+}
+
+// KEY: /account/<username>
+message Account {
+  string username = 1;  // Username of the account
+  string password = 2;  // Encoded password (hash + salt)
+
+  enum Role {
+    UNSPECIFIED = 0;
+    NORMAL = 1;
+    ADMIN = 2;
+  }
+  Role role = 3;  // Role of the account
+
+  repeated string namespaces = 4; // Namespaces name owned by the account
+  repeated string datasets = 5;    // Datasets name owned by the account
+}
+
+// KEY: /namespace/<name>
+message Namespace {
+  string name = 2;
+  string provider_account_name = 3;
+  string responsible = 4;
+  repeated string metaclass = 5;
+  Language language = 6;
+}
+
+// KEY: /dataset/<name>
+message DataSet {
+  string name = 1;    // Dataset name
+  bool is_public = 2; // Is it public or not
+}
+
+// KEY: /object/<id>
+message Object {
+  string id = 1;                              // UUID of the object
+  string class_id = 2;                        // UUID of the object
+  string dataset_id = 3;                      // Dataset name of the object
+  repeated string execution_environments = 4; // Execution environment names where the object is replicated
+  bool is_read_only = 5;                      // Indicates if the object is read only
+  string alias = 6;                           // User alias for the object
+  Language language = 7;                      // Language of the object
+  string account = 8;                         // Owner account
+}
+
+// KEY: /executionenvironment/<id>
+message ExecutionEnvironment {
+  string id = 1;
+  string name = 2;
+  string hostname = 3;
+  uint32 port = 4;
+  Language language = 5;
+}
+
+// KEY: /session/<id>
+message Session {
+  string id = 1;
+  string account = 2;             // Account username
+  repeated string namespaces = 3; // Namespaces name that the accout have access to
+  repeated string datasets = 4;   // Dataset name that the account have access to
+  string dataset_for_store = 5;   // Dataset for store
+}
+
+// We may remove stubs, therefore the MetaClass won't be stored in metadata.
+// KEY: /metaclass/<id>
+message MetaClass {
+  string id = 1;
+  string namespace = 2;       // Namespace of the class
+  string name = 3;            // Name of the class
+  string parent_type_id = 4;  // Information of parent MetaClass (if exists)
+
+  message Property {
+    string id = 1;                          // UUID of the property.
+    string namespace = 2;                   // Name of namespace of the class of the property.
+    string class_name = 3;                  // Name of the class of the property.
+    string name = 4;                        // Name of the property.
+    uint32 position = 5;                    // Position of the property in class.
+    Type type = 6;                          // Type of the property.
+    string getter_operation_id = 7;         // ID of the Getter operation of the Property.
+    string setter_operation_id = 8;         // ID of the Getter operation of the Property.
+    string getter_implementation_id = 9;    // ID of the Getter Implementation of the Property.
+    string setter_implementation_id = 10;   // ID of the Getter Implementation of the Property.
+    string namespace_id = 11;               // ID of the namespace in which the property has been created.
+    string meta_class_id = 12;              // ID of the MetaClass containing the Property.
+    repeated string extended_types = 13;
+    repeated string extensions = 14;
+    repeated string annotations = 15;       // Property's annotations.
+    string updated_implementation_id = 16;  // ID of the Setter Implementation of the Property.
+    string updated_operation_id = 17;       // ID of the Setter operation of the Property.
+    string before_update = 18;
+    string after_update = 19;
+    bool in_master = 20;
+
+    message Type {
+      string id = 1;                // ID
+      string descriptor = 2;        // Descriptor of the type
+      string signature = 3;         // Signature of the type
+      string type_name = 4;         // Type name
+      repeated string includes = 5; // List of sub-types of the type (like arrays, collections...).
+      string namespace = 6;
+      string class_id = 7;
+      
+      // extended_types
+      // extensions 
+    }
+  }
+  repeated Property properties = 5;   // List of Properties of the metaclass
+
+  message Operation {
+    string namespace = 1;//: "dcmodel",
+    string className = 2;//: "classes.Person",
+    string descriptor = 3;//: "()(null)V",
+    string signature = 4;//: "(python.str)V",
+    string name = 5;//: "$$setname",
+    string nameAndDescriptor = 6;//: "$$setname",
+    string paramsNames = 7;//: "varchar param0 ",
+    string paramsTypes = 8;//: "<uuid>",
+    string paramOrder = 9;//: "varchar param0 ",
+    string returnType = 10;//: "<ObjectID>",
+    string implementations = 11;//: "<uuid>",
+    string isAbstract = 12;//: 0,
+    string isStaticConstruct = 13;//: 0,
+    string metaClassID = 14;//: "<ObjectID>",
+    string namespaceID = 15;//: "<ObjectID>",
+    string extendedtypes = 16;//: "varchar LANG_JAVA ",
+    string extensions = 17;//: "<uuid>"
+  }
+  repeated Operation operations = 6;  // List of Operations of the metaclass
+
+  bool is_abstract = 7;
+  string namespace_id = 8;
+
+  // extended_types
+  // extensions
+
+}
