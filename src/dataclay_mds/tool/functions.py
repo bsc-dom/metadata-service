@@ -24,8 +24,11 @@ class MDSClient:
 
     def new_account(self, username, password):
         request = metadata_service_pb2.NewAccountRequest(username=username, password=password)
-        response = self.stub.NewAccount(request)
-        return response
+        return self.stub.NewAccount(request)
+
+    def new_session(self, username, password):
+        request = metadata_service_pb2.NewSessionRequest(username=username, password=password)
+        return self.stub.NewSession(request)
 
 def new_account(username, password):
     logger.info(f'Creating "{username}" account')
@@ -33,6 +36,11 @@ def new_account(username, password):
     response = mds_client.new_account(username, password)
     logger.debug(f'Created account ({username}). Response -> {response.username}')
 
+def new_session(username, password):
+    logger.info(f'Creating new session')
+    mds_client = MDSClient(HOSTNAME, PORT)
+    response = mds_client.new_session(username, password)
+    logger.debug(f'Created new session for {username}, with id {response.id}')
 
 def get_backends(username, password):
     print(username, password)

@@ -14,7 +14,7 @@ class Settings:
 
     SERVER_LISTEN_PORT = int(os.getenv("METADATA_SERVICE_PORT_TCP", "16587"))
 
-    ETCD_HOST = os.getenv("ETCD_HOST", "127.0.0.1")
+    ETCD_HOST = os.environ["ETCD_HOST"]
     ETCD_PORT = int(os.getenv("ETCD_PORT", "2379"))
 
     

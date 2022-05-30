@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 def new_account(args):
     return functions.new_account(args.username, args.password)
 
+def new_session(args):
+    return functions.new_session(args.username, args.password)
+
 def get_backends(args):
     return functions.get_backends(args.username, args.password)
 
@@ -26,6 +29,12 @@ if __name__ == "__main__":
     parser_new_account.add_argument('username', type=str)
     parser_new_account.add_argument('password', type=str)
     parser_new_account.set_defaults(func=new_account)
+
+    # Create the parser for the "new_session" command
+    parser_new_session = subparsers.add_parser('new_session')
+    parser_new_session.add_argument('username', type=str)
+    parser_new_session.add_argument('password', type=str)
+    parser_new_session.set_defaults(func=new_session)
 
     # Create the parser for the "get_backends" command
     parser_new_account = subparsers.add_parser('get_backends')

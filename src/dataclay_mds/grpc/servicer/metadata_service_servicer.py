@@ -13,10 +13,20 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
         self.metadata_service = metadata_service
         logger.debug('Initialized MetadataServiceServicer')
 
+    # TODO: define get_exception_info(..) to serialize excpetions
+
     def NewAccount(self, request, context):
         try:
             result = self.metadata_service.new_account(request.username, request.password)
         except Exception as ex:
             traceback.print_exc()
             return self.get_exception_info(ex)
-        return metadata_service_pb2.NewAccountResponse(username='mamamia')
+        return metadata_service_pb2.NewAccountResponse(username=result)
+
+    def NewSession(self, request, context):
+        try:
+            result = self.metadata_service.new_session(request.username, request.password)
+        except Exception as ex:
+            traceback.print_exc()
+            return self.get_exception_info(ex)
+        return metadata_service_pb2.NewSessionResponse(id=result)
