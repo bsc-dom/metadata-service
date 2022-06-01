@@ -1,6 +1,8 @@
 import logging
 import traceback
 
+import grpc
+
 from dataclay_mds.grpc.protos.generated import metadata_service_pb2_grpc
 from dataclay_mds.grpc.protos.generated import metadata_service_pb2
 
@@ -19,8 +21,11 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
         try:
             result = self.metadata_service.new_account(request.username, request.password)
         except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return self.get_exception_info(ex)
+            return metadata_service_pb2.NewAccountResponse()
         return metadata_service_pb2.NewAccountResponse(username=result)
 
     def NewSession(self, request, context):
