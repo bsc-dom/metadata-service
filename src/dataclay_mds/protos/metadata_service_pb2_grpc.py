@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import dataclay_mds.grpc.protos.generated.metadata_service_pb2 as metadata__service__pb2
+import dataclay_mds.protos.metadata_service_pb2 as metadata__service__pb2
 
 
 class MetadataServiceStub(object):
@@ -15,12 +15,17 @@ class MetadataServiceStub(object):
             channel: A grpc.Channel.
         """
         self.NewAccount = channel.unary_unary(
-                '/dataclay_mds.grpc.protos.generated.MetadataService/NewAccount',
+                '/metadata_service.MetadataService/NewAccount',
                 request_serializer=metadata__service__pb2.NewAccountRequest.SerializeToString,
                 response_deserializer=metadata__service__pb2.NewAccountResponse.FromString,
                 )
+        self.GetAccount = channel.unary_unary(
+                '/metadata_service.MetadataService/GetAccount',
+                request_serializer=metadata__service__pb2.GetAccountRequest.SerializeToString,
+                response_deserializer=metadata__service__pb2.GetAccountResponse.FromString,
+                )
         self.NewSession = channel.unary_unary(
-                '/dataclay_mds.grpc.protos.generated.MetadataService/NewSession',
+                '/metadata_service.MetadataService/NewSession',
                 request_serializer=metadata__service__pb2.NewSessionRequest.SerializeToString,
                 response_deserializer=metadata__service__pb2.NewSessionResponse.FromString,
                 )
@@ -32,6 +37,12 @@ class MetadataServiceServicer(object):
     def NewAccount(self, request, context):
         """Account Manager
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAccount(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -50,6 +61,11 @@ def add_MetadataServiceServicer_to_server(servicer, server):
                     request_deserializer=metadata__service__pb2.NewAccountRequest.FromString,
                     response_serializer=metadata__service__pb2.NewAccountResponse.SerializeToString,
             ),
+            'GetAccount': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAccount,
+                    request_deserializer=metadata__service__pb2.GetAccountRequest.FromString,
+                    response_serializer=metadata__service__pb2.GetAccountResponse.SerializeToString,
+            ),
             'NewSession': grpc.unary_unary_rpc_method_handler(
                     servicer.NewSession,
                     request_deserializer=metadata__service__pb2.NewSessionRequest.FromString,
@@ -57,7 +73,7 @@ def add_MetadataServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'dataclay_mds.grpc.protos.generated.MetadataService', rpc_method_handlers)
+            'metadata_service.MetadataService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -76,9 +92,26 @@ class MetadataService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dataclay_mds.grpc.protos.generated.MetadataService/NewAccount',
+        return grpc.experimental.unary_unary(request, target, '/metadata_service.MetadataService/NewAccount',
             metadata__service__pb2.NewAccountRequest.SerializeToString,
             metadata__service__pb2.NewAccountResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetAccount(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/metadata_service.MetadataService/GetAccount',
+            metadata__service__pb2.GetAccountRequest.SerializeToString,
+            metadata__service__pb2.GetAccountResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,7 +126,7 @@ class MetadataService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dataclay_mds.grpc.protos.generated.MetadataService/NewSession',
+        return grpc.experimental.unary_unary(request, target, '/metadata_service.MetadataService/NewSession',
             metadata__service__pb2.NewSessionRequest.SerializeToString,
             metadata__service__pb2.NewSessionResponse.FromString,
             options, channel_credentials,
