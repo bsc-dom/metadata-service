@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16metadata_service.proto\x12\x10metadata_service\"7\n\x11NewAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"&\n\x12NewAccountResponse\x12\x10\n\x08username\x18\x01 \x01(\t\"d\n\x11NewSessionRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x10\n\x08\x64\x61tasets\x18\x03 \x03(\t\x12\x19\n\x11\x64\x61taset_for_store\x18\x04 \x01(\t\" \n\x12NewSessionResponse\x12\n\n\x02id\x18\x01 \x01(\t\"%\n\x11GetAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"\x14\n\x12GetAccountResponse2\xa2\x02\n\x0fMetadataService\x12Y\n\nNewAccount\x12#.metadata_service.NewAccountRequest\x1a$.metadata_service.NewAccountResponse\"\x00\x12Y\n\nGetAccount\x12#.metadata_service.GetAccountRequest\x1a$.metadata_service.GetAccountResponse\"\x00\x12Y\n\nNewSession\x12#.metadata_service.NewSessionRequest\x1a$.metadata_service.NewSessionResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16metadata_service.proto\x12\x10metadata_service\"7\n\x11NewAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"&\n\x12NewAccountResponse\x12\x10\n\x08username\x18\x01 \x01(\t\"d\n\x11NewSessionRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x10\n\x08\x64\x61tasets\x18\x03 \x03(\t\x12\x19\n\x11\x64\x61taset_for_store\x18\x04 \x01(\t\" \n\x12NewSessionResponse\x12\n\n\x02id\x18\x01 \x01(\t\"%\n\x11GetAccountRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"\x14\n\x12GetAccountResponse\"H\n\x11NewDatasetRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0f\n\x07\x64\x61taset\x18\x03 \x01(\t\"\x14\n\x12NewDatasetResponse2\xfd\x02\n\x0fMetadataService\x12Y\n\nNewAccount\x12#.metadata_service.NewAccountRequest\x1a$.metadata_service.NewAccountResponse\"\x00\x12Y\n\nGetAccount\x12#.metadata_service.GetAccountRequest\x1a$.metadata_service.GetAccountResponse\"\x00\x12Y\n\nNewSession\x12#.metadata_service.NewSessionRequest\x1a$.metadata_service.NewSessionResponse\"\x00\x12Y\n\nNewDataset\x12#.metadata_service.NewDatasetRequest\x1a$.metadata_service.NewDatasetResponse\"\x00\x62\x06proto3')
 
 
 
@@ -24,6 +24,8 @@ _NEWSESSIONREQUEST = DESCRIPTOR.message_types_by_name['NewSessionRequest']
 _NEWSESSIONRESPONSE = DESCRIPTOR.message_types_by_name['NewSessionResponse']
 _GETACCOUNTREQUEST = DESCRIPTOR.message_types_by_name['GetAccountRequest']
 _GETACCOUNTRESPONSE = DESCRIPTOR.message_types_by_name['GetAccountResponse']
+_NEWDATASETREQUEST = DESCRIPTOR.message_types_by_name['NewDatasetRequest']
+_NEWDATASETRESPONSE = DESCRIPTOR.message_types_by_name['NewDatasetResponse']
 NewAccountRequest = _reflection.GeneratedProtocolMessageType('NewAccountRequest', (_message.Message,), {
   'DESCRIPTOR' : _NEWACCOUNTREQUEST,
   '__module__' : 'metadata_service_pb2'
@@ -66,6 +68,20 @@ GetAccountResponse = _reflection.GeneratedProtocolMessageType('GetAccountRespons
   })
 _sym_db.RegisterMessage(GetAccountResponse)
 
+NewDatasetRequest = _reflection.GeneratedProtocolMessageType('NewDatasetRequest', (_message.Message,), {
+  'DESCRIPTOR' : _NEWDATASETREQUEST,
+  '__module__' : 'metadata_service_pb2'
+  # @@protoc_insertion_point(class_scope:metadata_service.NewDatasetRequest)
+  })
+_sym_db.RegisterMessage(NewDatasetRequest)
+
+NewDatasetResponse = _reflection.GeneratedProtocolMessageType('NewDatasetResponse', (_message.Message,), {
+  'DESCRIPTOR' : _NEWDATASETRESPONSE,
+  '__module__' : 'metadata_service_pb2'
+  # @@protoc_insertion_point(class_scope:metadata_service.NewDatasetResponse)
+  })
+_sym_db.RegisterMessage(NewDatasetResponse)
+
 _METADATASERVICE = DESCRIPTOR.services_by_name['MetadataService']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
@@ -82,6 +98,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETACCOUNTREQUEST._serialized_end=314
   _GETACCOUNTRESPONSE._serialized_start=316
   _GETACCOUNTRESPONSE._serialized_end=336
-  _METADATASERVICE._serialized_start=339
-  _METADATASERVICE._serialized_end=629
+  _NEWDATASETREQUEST._serialized_start=338
+  _NEWDATASETREQUEST._serialized_end=410
+  _NEWDATASETRESPONSE._serialized_start=412
+  _NEWDATASETRESPONSE._serialized_end=432
+  _METADATASERVICE._serialized_start=435
+  _METADATASERVICE._serialized_end=816
 # @@protoc_insertion_point(module_scope)

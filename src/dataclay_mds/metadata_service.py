@@ -1,4 +1,5 @@
 import logging
+import json
 
 import etcd3
 
@@ -13,12 +14,12 @@ class MetadataService:
 
     def __init__(self):
         # Creates etcd client
-        etcd_client = etcd3.client(settings.ETCD_HOST, settings.ETCD_PORT)
+        self.etcd_client = etcd3.client(settings.ETCD_HOST, settings.ETCD_PORT)
 
         # Creates managers for each class
-        self.account_mgr = AccountManager(etcd_client)
-        self.session_mgr = SessionManager(etcd_client)
-        self.dataset_mgr = DatasetManager(etcd_client)
+        self.account_mgr = AccountManager(self.etcd_client)
+        self.session_mgr = SessionManager(self.etcd_client)
+        self.dataset_mgr = DatasetManager(self.etcd_client)
 
         logger.info("Initialized MetadataService")
 
@@ -27,12 +28,14 @@ class MetadataService:
         # Creates a default dataset and puts it to etcd
         # TODO: Use a default name that cannot be taken by other users previously
         #       For example, {username}_ds
-        dataset = Dataset(username)
-        account = Account(username, password, datasets=[dataset.name])
+        # TODO: ¿Should I create a default dataset? If not, delete the creation
+        # dataset = Dataset(username, username)
+        account = Account(username, password)
 
         # Put to etcd
+        # TODO: Create transaction for both updates
         self.account_mgr.new_account(account)
-        self.dataset_mgr.put_dataset(dataset)
+        # self.dataset_mgr.new_dataset(dataset)
 
         # TODO: Return a more interesting value
         logger.info(f'Created new account for {username}')
@@ -44,6 +47,8 @@ class MetadataService:
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
             raise Exception('Account is not valid!')
+
+        # TODO: Check that datasets and dataset_for_store exists
 
         # Creates a new session and puts it to etcd
         session = Session(
@@ -62,7 +67,23 @@ class MetadataService:
         if not account.validate(password):
             raise Exception('Account is not valid!')
 
-        dataset = Dataset(dataset_name)
-        self.dataset_mgr.put_dataset(dataset)
+        # Create dataset and update account datasets
+        dataset = Dataset(dataset_name, username)
+        account.datasets.append(dataset_name)
+
+        # TODO: Add new dataset and
+        #       update list of datasets from /account/{username}
+        #       Do it in a transaction
+        result = self.etcd_client.transaction(
+            compare=[
+                self.etcd_client.transactions.version(dataset.key()) == 0,
+            ],
+            success=[
+                self.etcd_client.transactions.put(dataset.key(), dataset.value()),
+                self.etcd_client.transactions.put(account.key(), account.value()),
+            ],
+            failure=[]
+        )
+        print('RESULT', result)
 
 

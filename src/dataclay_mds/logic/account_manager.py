@@ -3,9 +3,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+# TODO: Extend class to generic with key(), value(), ...
 class Account:
     def __init__(self, username, password=None, 
-        role='NORMAL', namespaces=[None], datasets=[None]):
+        role='NORMAL', namespaces=[], datasets=[]):
         self.username = username
         self.password = password
         self.role = role
@@ -21,9 +23,19 @@ class Account:
             datasets=value['datasets'])
         return account
 
-    def validate(self, password, role='NORMAL'):
+    def validate(self, password, role=None):
         # TODO: Keep password as hash + salt
-        return self.password == password and self.role == role
+        if self.password != password:
+            return False
+        if role is not None and self.role != role:
+            return False
+        return True
+
+    def key(self):
+        return f'/account/{self.username}'
+
+    def value(self):
+        return json.dumps(self.__dict__)
 
 
 class AccountManager:

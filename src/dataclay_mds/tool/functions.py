@@ -19,9 +19,11 @@ class MDSClient:
         self.channel.close()
 
     def new_account(self, username, password):
-        request = metadata_service_pb2.NewAccountRequest(username=username, password=password)
-        response = self.stub.NewAccount(request)
-        return response
+        request = metadata_service_pb2.NewAccountRequest(
+            username=username, 
+            password=password
+        )
+        return self.stub.NewAccount(request)
 
     def new_session(self, username, password, datasets, dataset_for_store):
         request = metadata_service_pb2.NewSessionRequest(
@@ -31,3 +33,11 @@ class MDSClient:
             dataset_for_store=dataset_for_store
         )
         return self.stub.NewSession(request)
+
+    def new_dataset(self, username, password, dataset):
+        request = metadata_service_pb2.NewDatasetRequest(
+            username=username,
+            password=password,
+            dataset=dataset
+        )
+        return self.stub.NewDataset(request)

@@ -46,3 +46,18 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return metadata_service_pb2.NewSessionResponse()
         return metadata_service_pb2.NewSessionResponse(id=result)
+
+    def NewDataset(self, request, context):
+        try:
+            result = self.metadata_service.new_dataset(
+                request.username, 
+                request.password,
+                request.dataset
+            )
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return metadata_service_pb2.NewDatasetResponse()
+        return metadata_service_pb2.NewDatasetResponse()

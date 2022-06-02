@@ -3,8 +3,8 @@ import uuid
 
 
 class Session:
-    def __init__(self, username, namespaces=[None],
-        datasets=[None], dataset_for_store=None):
+    def __init__(self, username, namespaces=[],
+        datasets=[], dataset_for_store=None):
         self.id = str(uuid.uuid4())
         self.username = username
         self.namespaces = namespaces
