@@ -21,6 +21,10 @@ class Account:
             datasets=value['datasets'])
         return account
 
+    def validate(self, password, role='NORMAL'):
+        # TODO: Keep password as hash + salt
+        return self.password == password and self.role == role
+
 
 class AccountManager:
     
@@ -55,8 +59,14 @@ class AccountManager:
         return account.username
 
     def get_account(self, username):
+        # Get account from etcd and checks that it exists
         key = f'/account/{username}'
-        value = json.loads(self.etcd_client.get(key)[0])
+        value = self.etcd_client.get(key)[0]
+        if value is None:
+            raise Exception(f'Account {username} does not exists!')
+
+        # Create account
+        value = json.loads(value)
         account = Account(username, 
             password=value['password'],
             role=value['role'],
@@ -83,28 +93,8 @@ class AccountManager:
             if not self.etcd_client.get(key)[0]:
                 self.etcd_client.put(key, value)
             else:
-                raise Exception('Account already exists!')
+                raise Exception(f'Account {account.username} already exists!')
 
-    def validate_account(self, username, password, role='NORMAL'):
-        # Checks if account exists
-        exists, value = self.exists(username)
-        if not exists:
-            raise Exception('Account does not exists!')
-    
-        value = json.loads(value)
-        is_valid = True
-
-        # Checks account role
-        if value['role'] != role:
-            is_valid = False
-            logger.debug(f'Role {role} does not match account role {value["role"]}.')
-        
-        # Checks password
-        if value['password'] != password:
-            is_valid = False
-            logger.debug(f'Password does not match!')
-
-        return is_valid
 
 
 

@@ -40,8 +40,8 @@ class MetadataService:
 
     def new_session(self, username, password):
         # Validate account
-        is_valid = self.account_mgr.validate_account(username, password)
-        if not is_valid:
+        account = self.account_mgr.get_account(username)
+        if not account.validate(password):
             raise Exception('Account is not valid!')
 
         # Creates a new session and puts it to etcd
@@ -53,8 +53,8 @@ class MetadataService:
 
     def new_dataset(self, username, password, dataset_name):
         # Validate account
-        is_valid = self.account_mgr.validate_account(username, password)
-        if not is_valid:
+        account = self.account_mgr.get_account(username)
+        if not account.validate(password):
             raise Exception('Account is not valid!')
 
         dataset = Dataset(dataset_name)

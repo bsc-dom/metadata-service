@@ -32,6 +32,9 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
         try:
             result = self.metadata_service.new_session(request.username, request.password)
         except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return self.get_exception_info(ex)
+            return metadata_service_pb2.NewSessionResponse()
         return metadata_service_pb2.NewSessionResponse(id=result)
