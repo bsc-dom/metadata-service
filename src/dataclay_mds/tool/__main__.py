@@ -28,7 +28,12 @@ def new_session(args):
     logger.info(f'Creating new session')
     try:
         mds_client = MDSClient(HOSTNAME, PORT)
-        response = mds_client.new_session(args.username, args.password)
+        response = mds_client.new_session(
+            args.username, 
+            args.password,
+            args.datasets.split(':'),
+            args.dataset_for_store
+        )
     except grpc.RpcError as e:
         logger.error(e.details())
         logger.debug(e.code().name)
@@ -54,6 +59,8 @@ parser_new_account.set_defaults(func=new_account)
 parser_new_session = subparsers.add_parser('new_session')
 parser_new_session.add_argument('username', type=str)
 parser_new_session.add_argument('password', type=str)
+parser_new_session.add_argument('datasets', type=str)
+parser_new_session.add_argument('dataset_for_store', type=str)
 parser_new_session.set_defaults(func=new_session)
 
 # Create the parser for the "get_backends" command

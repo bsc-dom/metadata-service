@@ -19,7 +19,10 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewAccount(self, request, context):
         try:
-            result = self.metadata_service.new_account(request.username, request.password)
+            result = self.metadata_service.new_account(
+                request.username, 
+                request.password
+            )
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -30,7 +33,12 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewSession(self, request, context):
         try:
-            result = self.metadata_service.new_session(request.username, request.password)
+            result = self.metadata_service.new_session(
+                request.username, 
+                request.password,
+                list(request.datasets),
+                request.dataset_for_store
+            )
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)

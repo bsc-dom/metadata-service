@@ -38,14 +38,19 @@ class MetadataService:
         logger.info(f'Created new account for {username}')
         return username
 
-    def new_session(self, username, password):
+    def new_session(self, username, password, datasets, dataset_for_store):
+        # TODO: Add namespaces (if needed)
         # Validate account
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
             raise Exception('Account is not valid!')
 
         # Creates a new session and puts it to etcd
-        session = Session(username=username)
+        session = Session(
+            username=username,
+            datasets=datasets, 
+            dataset_for_store=dataset_for_store
+        )
         self.session_mgr.put_session(session)
 
         logger.info(f'Created new session for {username}, with id {session.id}')
