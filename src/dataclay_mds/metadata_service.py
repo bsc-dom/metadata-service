@@ -71,19 +71,8 @@ class MetadataService:
         dataset = Dataset(dataset_name, username)
         account.datasets.append(dataset_name)
 
-        # TODO: Add new dataset and
-        #       update list of datasets from /account/{username}
-        #       Do it in a transaction
-        result = self.etcd_client.transaction(
-            compare=[
-                self.etcd_client.transactions.version(dataset.key()) == 0,
-            ],
-            success=[
-                self.etcd_client.transactions.put(dataset.key(), dataset.value()),
-                self.etcd_client.transactions.put(account.key(), account.value()),
-            ],
-            failure=[]
-        )
-        print('RESULT', result)
+        self.dataset_mgr.new_dataset(dataset)
+        self.account_mgr.put_account(account)
+
 
 
