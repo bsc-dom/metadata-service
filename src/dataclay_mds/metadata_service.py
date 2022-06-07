@@ -25,21 +25,22 @@ class MetadataService:
         logger.info("Initialized MetadataService")
 
     def new_account(self, username, password):
-        # Creates a default dataset and puts it to etcd
-        # TODO: Use a default name that cannot be taken by other users previously
-        #       For example, {username}_ds
-        # TODO: ¿Should I create a default dataset? If not, delete the creation
-        # dataset = Dataset(username, username)
+        """"Registers a new account
+
+        Creates a new account. Checks that the username is not registered.
+
+        Args:
+            username : Accounts username
+            password : Accounts password
+        """
+
+        # TODO: Ask for admin credentials for creating the account.
+
+        # Creates new account and put it to etcd
         account = Account(username, password)
-
-        # Put to etcd
-        # TODO: Create transaction for both updates
         self.account_mgr.new_account(account)
-        # self.dataset_mgr.new_dataset(dataset)
 
-        # TODO: Return a more interesting value
         logger.info(f'Created new account for {username}')
-        return username
 
     def new_session(self, username, password, dataset_for_store):
         """"Registers a new session
@@ -55,6 +56,7 @@ class MetadataService:
         Raises:
             Exception('Account is not valid!'): If wrong credentials
         """
+
         # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
@@ -89,6 +91,7 @@ class MetadataService:
         Raises:
             Exception('Account is not valid!'): If wrong credentials
         """
+
         # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
