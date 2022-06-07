@@ -44,31 +44,8 @@ class AccountManager:
         self.etcd_client = etcd_client
 
     def put_account(self, account):
-        """"Registers a new account
-        
-        If the username is already registered, the account is not created
-
-        Args:
-            username : The username of the new account
-            password : The password of the new account
-
-        Returns:
-            The username of the new account
-
-        Raises:
-            NotImplementedError: If no sound is set for the animal or passed in as a 
-                parameter.
-        """
-
-        # TODO: Validate admin account (maybe not here)
-        # TODO: Check that the username does not exists
-
         # Store account in etcd
-        key = f'/account/{account.username}'
-        value = json.dumps(account.__dict__)
-        self.etcd_client.put(key, value)
-
-        return account.username
+        self.etcd_client.put(account.key(), account.value())
 
     def get_account(self, username):
         # Get account from etcd and checks that it exists

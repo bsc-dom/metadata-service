@@ -10,6 +10,7 @@ from dataclay_mds.conf import settings
 
 logger = logging.getLogger(__name__)
 
+
 class MetadataService:
 
     def __init__(self):
@@ -22,7 +23,6 @@ class MetadataService:
         self.dataset_mgr = DatasetManager(self.etcd_client)
 
         logger.info("Initialized MetadataService")
-
 
     def new_account(self, username, password):
         # Creates a default dataset and puts it to etcd
@@ -41,38 +41,66 @@ class MetadataService:
         logger.info(f'Created new account for {username}')
         return username
 
-    def new_session(self, username, password, datasets, dataset_for_store):
-        # TODO: Add namespaces (if needed)
-        # Validate account
+    def new_session(self, username, password, dataset_for_store):
+        """"Registers a new session
+
+        Validates the account credentials, and creates a new session
+        associated to the account and the dataset_for_store.
+
+        Args:
+            username : Accounts username
+            password : Accounts password
+            dataset_for_store: Name of the dataset to store objects
+
+        Raises:
+            Exception('Account is not valid!'): If wrong credentials
+        """
+        # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
             raise Exception('Account is not valid!')
 
-        # TODO: Check that datasets and dataset_for_store exists
+        # Validates accounts access to dataset_for_store
+        dataset = self.dataset_mgr.get_dataset(dataset_for_store)
+        if (not dataset.is_public and dataset_for_store not in account.datasets):
+            raise Exception(f'Account {username} cannot access {dataset_for_store} dataset!')
 
-        # Creates a new session and puts it to etcd
-        session = Session(
-            username=username,
-            datasets=datasets, 
-            dataset_for_store=dataset_for_store
-        )
+        # Creates a new session
+        session = Session(username=username, datasets=account.datasets,
+                          dataset_for_store=dataset_for_store)
         self.session_mgr.put_session(session)
 
-        logger.info(f'Created new session for {username}, with id {session.id}')
+        logger.info(f'Created new session for {username} with id {session.id}')
         return session.id
 
     def new_dataset(self, username, password, dataset_name):
-        # Validate account
+        """"Registers a new dataset
+
+        Validates the account credentials, and creates a new dataset
+        associated to the account. It updates the account metadata
+        to add access to the new dataset. The dataset name must bu
+        unique.
+
+        Args:
+            username : Accounts username
+            password : Accounts password
+            dataset_name: Name of the new dataset. Must be unique.
+
+        Raises:
+            Exception('Account is not valid!'): If wrong credentials
+        """
+        # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
             raise Exception('Account is not valid!')
 
-        # Create dataset and update account datasets
+        # Creates new dataset and updates account's list of datasets
         dataset = Dataset(dataset_name, username)
         account.datasets.append(dataset_name)
 
+        # Put new dataset to etcd and updates account metadata
+        # Order matters to check that dataset name is not registered
         self.dataset_mgr.new_dataset(dataset)
         self.account_mgr.put_account(account)
 
-
-
+        logger.info(f'Created {dataset.name} dataset for {username} account')
