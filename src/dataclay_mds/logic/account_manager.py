@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 class Account:
     def __init__(self, username, password=None, 
         role='NORMAL', namespaces=[], datasets=[]):
+        # TODO: Remove namespaces from account?
         self.username = username
         self.password = password
         self.role = role

@@ -68,8 +68,9 @@ class MetadataService:
             raise Exception(f'Account {username} cannot access {default_dataset} dataset!')
 
         # Creates a new session
+        # TODO: ¿Remove namespaces from Session and Account?
         session = Session(username=username, datasets=account.datasets,
-                          default_dataset=default_dataset)
+                          namespaces=account.namespaces, default_dataset=default_dataset)
         self.session_mgr.put_session(session)
 
         logger.info(f'Created new session for {username} with id {session.id}')
