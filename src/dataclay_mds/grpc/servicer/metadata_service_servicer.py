@@ -36,8 +36,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             result = self.metadata_service.new_session(
                 request.username, 
                 request.password,
-                list(request.datasets),
-                request.dataset_for_store
+                request.default_dataset
             )
         except Exception as ex:
             msg = str(ex)

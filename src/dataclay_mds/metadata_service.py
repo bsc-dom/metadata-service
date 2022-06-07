@@ -42,16 +42,16 @@ class MetadataService:
 
         logger.info(f'Created new account for {username}')
 
-    def new_session(self, username, password, dataset_for_store):
+    def new_session(self, username, password, default_dataset):
         """"Registers a new session
 
         Validates the account credentials, and creates a new session
-        associated to the account and the dataset_for_store.
+        associated to the account and the default_dataset.
 
         Args:
             username : Accounts username
             password : Accounts password
-            dataset_for_store: Name of the dataset to store objects
+            default_dataset: Name of the dataset to store objects
 
         Raises:
             Exception('Account is not valid!'): If wrong credentials
@@ -62,14 +62,14 @@ class MetadataService:
         if not account.validate(password):
             raise Exception('Account is not valid!')
 
-        # Validates accounts access to dataset_for_store
-        dataset = self.dataset_mgr.get_dataset(dataset_for_store)
-        if (not dataset.is_public and dataset_for_store not in account.datasets):
-            raise Exception(f'Account {username} cannot access {dataset_for_store} dataset!')
+        # Validates accounts access to default_dataset
+        dataset = self.dataset_mgr.get_dataset(default_dataset)
+        if (not dataset.is_public and default_dataset not in account.datasets):
+            raise Exception(f'Account {username} cannot access {default_dataset} dataset!')
 
         # Creates a new session
         session = Session(username=username, datasets=account.datasets,
-                          dataset_for_store=dataset_for_store)
+                          default_dataset=default_dataset)
         self.session_mgr.put_session(session)
 
         logger.info(f'Created new session for {username} with id {session.id}')

@@ -15,7 +15,8 @@ class Dataset:
         return json.dumps(self.__dict__)
 
     @classmethod
-    def from_json(cls, value):
+    def from_json(cls, s):
+        value = json.loads(s)
         dataset = cls(value['name'], value['owner'],
             is_public=value['is_public'])
         return dataset

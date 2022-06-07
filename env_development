@@ -4,8 +4,8 @@ export ETCD_PORT=2379
 export METADATA_SERVICE_HOST=127.0.0.1
 export METADATA_SERVICE_PORT=16587
 
-export DC_USERNAME=marc
-export DC_PASSWORD=123
+export DC_USERNAME=user
+export DC_PASSWORD=s3cret
 
-export DATASETS=d1:d2:d3
-export DATASET_FOR_STORE=d1
+# export DATASETS=d1:d2:d3
+export DEFAULT_DATASET=myDataset

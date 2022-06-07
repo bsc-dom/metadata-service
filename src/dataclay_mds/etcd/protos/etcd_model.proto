@@ -64,9 +64,7 @@ message ExecutionEnvironment {
 message Session {
   string id = 1;
   string account = 2;             // Account username
-  repeated string namespaces = 3; // Namespaces name that the accout have access to
-  repeated string datasets = 4;   // Dataset name that the account have access to
-  string dataset_for_store = 5;   // Dataset for store
+  string default_dataset = 5;     // Default dataset for read and store
 }
 
 // We may remove stubs, therefore the MetaClass won't be stored in metadata.

@@ -25,12 +25,11 @@ class MDSClient:
         )
         return self.stub.NewAccount(request)
 
-    def new_session(self, username, password, datasets, dataset_for_store):
+    def new_session(self, username, password, default_dataset):
         request = metadata_service_pb2.NewSessionRequest(
             username=username,
             password=password,
-            datasets=datasets,
-            dataset_for_store=dataset_for_store
+            default_dataset=default_dataset
         )
         return self.stub.NewSession(request)
 

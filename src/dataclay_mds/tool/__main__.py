@@ -32,7 +32,7 @@ def new_session(args):
             args.username, 
             args.password,
             args.datasets.split(':'),
-            args.dataset_for_store
+            args.default_dataset
         )
     except grpc.RpcError as e:
         logger.error(e.details())
@@ -74,8 +74,7 @@ parser_new_account.set_defaults(func=new_account)
 parser_new_session = subparsers.add_parser('new_session')
 parser_new_session.add_argument('username', type=str)
 parser_new_session.add_argument('password', type=str)
-parser_new_session.add_argument('datasets', type=str)
-parser_new_session.add_argument('dataset_for_store', type=str)
+parser_new_session.add_argument('default_dataset', type=str)
 parser_new_session.set_defaults(func=new_session)
 
 # Create the parser for the "new_dataset" command
