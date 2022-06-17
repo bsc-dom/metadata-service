@@ -3,8 +3,8 @@ import traceback
 
 import grpc
 
-from dataclay_mds.protos import metadata_service_pb2_grpc
-from dataclay_mds.protos import metadata_service_pb2
+from dataclay_common.protos import metadata_service_pb2_grpc
+from dataclay_common.protos import metadata_service_pb2
 
 logger = logging.getLogger(__name__)
 
