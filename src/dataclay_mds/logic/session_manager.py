@@ -11,6 +11,11 @@ class Session:
         self.datasets = datasets
         self.default_dataset = default_dataset
 
+    def key(self):
+        return f'/session/{self.id}'
+
+    def value(self):
+        return json.dumps(self.__dict__)
         
 
 class SessionManager:
@@ -19,8 +24,8 @@ class SessionManager:
         self.etcd_client = etcd_client
 
     def put_session(self, session):
+        self.etcd_client.put(session.key(), session.value())
 
-        # Store session in etcd
-        key = f'/session/{session.id}'
-        value = json.dumps(session.__dict__)
-        self.etcd_client.put(key, value)
+    def delete_session(self, id):
+        key = f'/session/{id}'
+        self.etcd_client.delete(key)

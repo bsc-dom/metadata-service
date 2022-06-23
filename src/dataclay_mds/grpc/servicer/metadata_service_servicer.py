@@ -60,3 +60,14 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return metadata_service_pb2.NewDatasetResponse()
         return metadata_service_pb2.NewDatasetResponse()
+
+    def CloseSession(self, request, context):
+        try:
+            result = self.metadata_service.close_session(request.id)
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return metadata_service_pb2.CloseSessionResponse()
+        return metadata_service_pb2.CloseSessionResponse()

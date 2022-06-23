@@ -108,3 +108,11 @@ class MetadataService:
         self.account_mgr.put_account(account)
 
         logger.info(f'Created {dataset.name} dataset for {username} account')
+
+    def close_session(self, id):
+        """Close session by id
+
+        Args:
+            id : Session id
+        """
+        self.session_mgr.delete_session(id)

@@ -45,7 +45,6 @@ class AccountManager:
         self.etcd_client = etcd_client
 
     def put_account(self, account):
-        # Store account in etcd
         self.etcd_client.put(account.key(), account.value())
 
     def get_account(self, username):
