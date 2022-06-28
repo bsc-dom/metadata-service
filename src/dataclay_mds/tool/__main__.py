@@ -4,7 +4,7 @@ import logging
 
 import grpc
 
-from dataclay_mds.tool.functions import MDSClient
+from dataclay_common.clients.metadata_service_client import MDSClient
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
