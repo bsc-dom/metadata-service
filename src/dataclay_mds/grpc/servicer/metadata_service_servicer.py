@@ -2,6 +2,7 @@ import logging
 import traceback
 
 import grpc
+from google.protobuf.empty_pb2 import Empty
 
 from dataclay_common.protos import metadata_service_pb2_grpc
 from dataclay_common.protos import metadata_service_pb2
@@ -28,8 +29,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             context.set_details(msg)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return metadata_service_pb2.NewAccountResponse()
-        return metadata_service_pb2.NewAccountResponse(username=result)
+            return Empty()
+        return Empty()
 
     def NewSession(self, request, context):
         try:
@@ -58,8 +59,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             context.set_details(msg)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return metadata_service_pb2.NewDatasetResponse()
-        return metadata_service_pb2.NewDatasetResponse()
+            return Empty()
+        return Empty()
 
     def CloseSession(self, request, context):
         try:
@@ -69,8 +70,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             context.set_details(msg)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return metadata_service_pb2.CloseSessionResponse()
-        return metadata_service_pb2.CloseSessionResponse()
+            return Empty()
+        return Empty()
 
     def GetDataclayID(self, request, context):
         try:

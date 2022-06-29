@@ -44,7 +44,7 @@ def new_dataset(args):
     logger.info(f'Creating new dataset')
     try:
         mds_client = MDSClient(HOSTNAME, PORT)
-        response = mds_client.new_dataset(
+        mds_client.new_dataset(
             args.username, 
             args.password,
             args.dataset
