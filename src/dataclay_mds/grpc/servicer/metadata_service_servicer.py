@@ -71,3 +71,14 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return metadata_service_pb2.CloseSessionResponse()
         return metadata_service_pb2.CloseSessionResponse()
+
+    def GetDataclayID(self, request, context):
+        try:
+            result = self.metadata_service.get_dataclay_id()
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return metadata_service_pb2.GetDataclayIDResponse()
+        return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=str(result))

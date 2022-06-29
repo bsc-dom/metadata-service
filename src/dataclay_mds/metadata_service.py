@@ -1,5 +1,6 @@
 import logging
 import json
+import uuid
 
 import etcd3
 
@@ -21,6 +22,9 @@ class MetadataService:
         self.account_mgr = AccountManager(self.etcd_client)
         self.session_mgr = SessionManager(self.etcd_client)
         self.dataset_mgr = DatasetManager(self.etcd_client)
+
+        # Set Dataclay id
+        self.dataclay_id = uuid.uuid4()
 
         logger.info("Initialized MetadataService")
 
@@ -115,4 +119,10 @@ class MetadataService:
         Args:
             id : Session id
         """
+        # TODO: Check that session exists
+        # TODO: Don't delete session, but set a variable as closed
         self.session_mgr.delete_session(id)
+
+    def get_dataclay_id(self):
+        """Get the dataclay id"""
+        return self.dataclay_id
