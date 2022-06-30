@@ -7,6 +7,7 @@ import etcd3
 from dataclay_mds.logic.account_manager import AccountManager, Account
 from dataclay_mds.logic.session_manager import SessionManager, Session
 from dataclay_mds.logic.dataset_manager import DatasetManager, Dataset
+from dataclay_mds.logic.executionenvironment_manager import ExecutionEnvironmentManager, ExecutionEnvironment
 from dataclay_mds.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class MetadataService:
         self.account_mgr = AccountManager(self.etcd_client)
         self.session_mgr = SessionManager(self.etcd_client)
         self.dataset_mgr = DatasetManager(self.etcd_client)
+        self.ee_mgr = ExecutionEnvironmentManager(self.etcd_client)
 
         # Set Dataclay id
         self.dataclay_id = uuid.uuid4()
@@ -126,3 +128,6 @@ class MetadataService:
     def get_dataclay_id(self):
         """Get the dataclay id"""
         return self.dataclay_id
+
+    def get_all_execution_environments(self):
+        return self.ee_mgr.get_all_execution_environments()

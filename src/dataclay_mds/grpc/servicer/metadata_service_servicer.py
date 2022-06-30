@@ -6,6 +6,7 @@ from google.protobuf.empty_pb2 import Empty
 
 from dataclay_common.protos import metadata_service_pb2_grpc
 from dataclay_common.protos import metadata_service_pb2
+from dataclay_common.protos import common_messages_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -83,3 +84,23 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return metadata_service_pb2.GetDataclayIDResponse()
         return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=str(result))
+
+    def GetAllExecutionEnvironments(self, request, context):
+        try:
+            result = self.metadata_service.get_all_execution_environments()
+            for id, ee in result:
+                common_messages_pb2.ExecutionEnvironmentInfo(
+                    id=ee.id,
+                    hostname=ee.hostname,
+                    name=ee.name,
+                    port=ee.port,
+                    language=ee.language
+                )
+
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
+        return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
