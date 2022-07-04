@@ -41,6 +41,8 @@ class Account:
 
 class AccountManager:
     
+    lock = 'lock_account'
+
     def __init__(self, etcd_client):
         self.etcd_client = etcd_client
 
@@ -63,26 +65,20 @@ class AccountManager:
             datasets=value['datasets'])
         return account
         
-    def exists(self, username):
-        """"Checks if account exists
-        
-        Returns:
-            A tuple with a boolean, and the account if it exists
-        """
+    def exists_account(self, username):
+        """"Returns ture if the account exists"""
+
         key = f'/account/{username}'
         value = self.etcd_client.get(key)[0]
-        return (value is not None, value)
+        return value is not None
 
     def new_account(self, account):
-        key = f'/account/{account.username}'
-        value = json.dumps(account.__dict__)
+        """Creates a new account. Checks that the username doesn't exists"""
 
-        # Creates a lock and checks that the username does not exists
-        with self.etcd_client.lock('lock_account'):
-            if not self.etcd_client.get(key)[0]:
-                self.etcd_client.put(key, value)
-            else:
+        with self.etcd_client.lock(self.lock):
+            if self.exists_account(account.username):
                 raise Exception(f'Account {account.username} already exists!')
+            self.put_account(account)
 
 
 

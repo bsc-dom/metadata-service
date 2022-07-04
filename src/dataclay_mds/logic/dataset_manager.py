@@ -41,11 +41,18 @@ class DatasetManager:
 
         return Dataset.from_json(value)
 
+
+    def exists_dataset(self, name):
+        """"Returns true if dataset exists"""
+
+        key = f'/dataset/{name}'
+        value = self.etcd_client.get(key)[0]
+        return value is not None
+
     def new_dataset(self, dataset):
-        # Creates a lock and checks that the dataset does not exists,
-        # then creates a new dataset in etcd
+        """Creates a new dataset. Checks that the dataset doesn't exists."""
+
         with self.etcd_client.lock(self.lock):
-            if not self.etcd_client.get(dataset.key())[0]:
-                self.etcd_client.put(dataset.key(), dataset.value())
-            else:
+            if self.exists_dataset(dataset.name):
                 raise Exception(f'Dataset {dataset.name} already exists!')
+            self.put_dataset(dataset)
