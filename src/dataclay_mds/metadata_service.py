@@ -3,12 +3,12 @@ import json
 import uuid
 
 import etcd3
-
-from dataclay_mds.logic.account_manager import AccountManager, Account
-from dataclay_mds.logic.session_manager import SessionManager, Session
-from dataclay_mds.logic.dataset_manager import DatasetManager, Dataset
-from dataclay_mds.logic.dataclay_manager import (DataclayManager, 
+from dataclay_common.managers.account_manager import AccountManager, Account
+from dataclay_common.managers.session_manager import SessionManager, Session
+from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
+from dataclay_common.managers.dataclay_manager import (DataclayManager, 
     ExecutionEnvironment)
+
 from dataclay_mds.conf import settings
 
 logger = logging.getLogger(__name__)

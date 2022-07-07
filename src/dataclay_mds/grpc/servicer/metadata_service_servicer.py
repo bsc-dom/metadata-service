@@ -86,20 +86,16 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def GetAllExecutionEnvironments(self, request, context):
         try:
             result = self.metadata_service.get_all_execution_environments()
-            for id, ee in result:
-                common_messages_pb2.ExecutionEnvironmentInfo(
-                    id=ee.id,
-                    hostname=ee.hostname,
-                    name=ee.name,
-                    port=ee.port,
-                    language=ee.language)
+            response = dict()
+            for id, exe_env in result.items():
+                response[id] = exe_env.get_proto()
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
-        return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
+        return metadata_service_pb2.GetAllExecutionEnvironmentsResponse(exe_envs=response)
 
     def AutoregisterEE(self, request, context):
         try:
