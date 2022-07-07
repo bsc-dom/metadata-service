@@ -6,8 +6,8 @@ import etcd3
 from dataclay_common.managers.account_manager import AccountManager, Account
 from dataclay_common.managers.session_manager import SessionManager, Session
 from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
-from dataclay_common.managers.dataclay_manager import (DataclayManager, 
-    ExecutionEnvironment)
+from dataclay_common.managers.dataclay_manager import (DataclayManager,
+                                                       ExecutionEnvironment)
 
 from dataclay_mds.conf import settings
 
@@ -27,7 +27,7 @@ class MetadataService:
         self.dataclay_mgr = DataclayManager(self.etcd_client)
 
         # Set Dataclay id
-        self.dataclay_id = uuid.uuid4()
+        self.dataclay_id = str(uuid.uuid4())
 
         logger.info("Initialized MetadataService")
 
@@ -132,16 +132,18 @@ class MetadataService:
 
         return self.dataclay_id
 
-    def get_all_execution_environments(self):
+    def get_all_execution_environments(self, language, get_external, from_backend):
         """Get all execution environments"""
 
-        return self.dataclay_mgr.get_all_execution_environments()
+        # TODO: get_external should
+        # TODO: Use exposed_ip_for_client if not from_backend to hide information?
+        return self.dataclay_mgr.get_all_execution_environments(language)
 
     def autoregister_ee(self, id, name, hostname, port, lang):
         """Autoregister execution environment"""
 
         # TODO: Check if ee already exists. If so, update its information.
         # TODO: Check connection to ExecutionEnvironment
-        exe_env = ExecutionEnvironment(id, name, hostname, port, lang)
+        exe_env = ExecutionEnvironment(id, name, hostname, port, lang, self.dataclay_id)
         self.dataclay_mgr.new_execution_environment(exe_env)
         # TODO: Deploy classes to backend? (better call from ee)

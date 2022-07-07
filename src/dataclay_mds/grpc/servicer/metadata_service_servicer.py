@@ -85,7 +85,11 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def GetAllExecutionEnvironments(self, request, context):
         try:
-            result = self.metadata_service.get_all_execution_environments()
+            result = self.metadata_service.get_all_execution_environments(
+                request.language,
+                request.get_external,
+                request.from_backend
+            )
             response = dict()
             for id, exe_env in result.items():
                 response[id] = exe_env.get_proto()
