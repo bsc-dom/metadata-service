@@ -8,6 +8,8 @@ from dataclay_common.protos import metadata_service_pb2_grpc
 from dataclay_common.protos import metadata_service_pb2
 from dataclay_common.protos import common_messages_pb2
 
+from dataclay_common.managers.object_manager import ObjectRegisterInfo
+
 logger = logging.getLogger(__name__)
 
 
@@ -108,6 +110,28 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
                 request.name,
                 request.hostname,
                 request.port,
+                request.lang)
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return Empty()
+        return Empty()
+
+    ###################
+    # Object Metadata #
+    ###################
+
+    def RegisterObjects(self, request, context):
+        try:
+            objects_info = []
+            for proto in request.objects_info:
+                objects_info.append(ObjectRegisterInfo.from_proto(proto))
+
+            self.metadata_service.register_objects(
+                objects_info,
+                request.backend_id,
                 request.lang)
         except Exception as ex:
             msg = str(ex)
