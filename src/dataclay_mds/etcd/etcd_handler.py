@@ -3,8 +3,8 @@
 import etcd3
 from dataclay_mds.conf import settings
 
-class EtcdHandler:
 
+class EtcdHandler:
     def __init__(self):
         self.etcd = etcd3.client(settings.ETCD_HOST, settings.ETCD_PORT)
 

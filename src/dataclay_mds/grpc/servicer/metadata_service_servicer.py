@@ -14,19 +14,17 @@ logger = logging.getLogger(__name__)
 
 
 class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer):
-    """"Provides methods that implement functionality of metadata server"""
+    """Provides methods that implement functionality of metadata server"""
 
     def __init__(self, metadata_service):
         self.metadata_service = metadata_service
-        logger.debug('Initialized MetadataServiceServicer')
+        logger.debug("Initialized MetadataServiceServicer")
 
     # TODO: define get_exception_info(..) to serialize excpetions
 
     def NewAccount(self, request, context):
         try:
-            result = self.metadata_service.new_account(
-                request.username,
-                request.password)
+            result = self.metadata_service.new_account(request.username, request.password)
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -38,9 +36,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def NewSession(self, request, context):
         try:
             result = self.metadata_service.new_session(
-                request.username,
-                request.password,
-                request.default_dataset)
+                request.username, request.password, request.default_dataset
+            )
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -52,9 +49,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def NewDataset(self, request, context):
         try:
             result = self.metadata_service.new_dataset(
-                request.username,
-                request.password,
-                request.dataset)
+                request.username, request.password, request.dataset
+            )
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -88,9 +84,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def GetAllExecutionEnvironments(self, request, context):
         try:
             result = self.metadata_service.get_all_execution_environments(
-                request.language,
-                request.get_external,
-                request.from_backend
+                request.language, request.get_external, request.from_backend
             )
             response = dict()
             for id, exe_env in result.items():
@@ -106,11 +100,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def AutoregisterEE(self, request, context):
         try:
             self.metadata_service.autoregister_ee(
-                request.id,
-                request.name,
-                request.hostname,
-                request.port,
-                request.lang)
+                request.id, request.name, request.hostname, request.port, request.lang
+            )
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -129,10 +120,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             for proto in request.objects_info:
                 objects_info.append(ObjectRegisterInfo.from_proto(proto))
 
-            self.metadata_service.register_objects(
-                objects_info,
-                request.backend_id,
-                request.lang)
+            self.metadata_service.register_objects(objects_info, request.backend_id, request.lang)
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)

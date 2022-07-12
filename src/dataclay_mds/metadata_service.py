@@ -79,9 +79,7 @@ class MetadataService:
         # Validates accounts access to default_dataset
         dataset = self.dataset_mgr.get_dataset(default_dataset)
         if not dataset.is_public and default_dataset not in account.datasets:
-            raise Exception(
-                f"Account {username} cannot access {default_dataset} dataset!"
-            )
+            raise Exception(f"Account {username} cannot access {default_dataset} dataset!")
 
         # Creates a new session
         # TODO: ¿Remove namespaces from Session and Account?
