@@ -8,7 +8,7 @@ from dataclay_common.protos import metadata_service_pb2_grpc
 from dataclay_common.protos import metadata_service_pb2
 from dataclay_common.protos import common_messages_pb2
 
-from dataclay_common.managers.object_manager import ObjectRegisterInfo, ObjectMetadata
+from dataclay_common.managers.object_manager import ObjectMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -114,25 +114,10 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     # Object Metadata #
     ###################
 
-    def RegisterObjects(self, request, context):
-        try:
-            objects_info = []
-            for proto in request.objects_info:
-                objects_info.append(ObjectRegisterInfo.from_proto(proto))
-
-            self.metadata_service.register_objects(objects_info, request.backend_id, request.lang)
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
-            context.set_code(grpc.StatusCode.INTERNAL)
-            traceback.print_exc()
-            return Empty()
-        return Empty()
-
     def RegisterObject(self, request, context):
         try:
             object_md = ObjectMetadata.from_proto(request.object_md)
-            self.metadata_service.register_object(object_md, request.session_id)
+            self.metadata_service.register_object(request.session_id, object_md)
         except Exception as ex:
             msg = str(ex)
             context.set_details(msg)
@@ -140,3 +125,18 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return Empty()
         return Empty()
+
+    def GetObjectFromAlias(self, request, context):
+        try:
+            object_id, class_id, hint = self.metadata_service.get_object_from_alias(
+                request.session_id, request.alias_name, request.dataset_name
+            )
+        except Exception as ex:
+            msg = str(ex)
+            context.set_details(msg)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return metadata_service_pb2.GetObjectFromAliasResponse()
+        return metadata_service_pb2.GetObjectFromAliasResponse(
+            object_id=object_id, class_id=class_id, hint=hint
+        )

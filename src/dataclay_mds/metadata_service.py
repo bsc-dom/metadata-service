@@ -6,16 +6,8 @@ import etcd3
 from dataclay_common.managers.account_manager import AccountManager, Account
 from dataclay_common.managers.session_manager import SessionManager, Session
 from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
-from dataclay_common.managers.object_manager import (
-    ObjectManager,
-    ObjectRegisterInfo,
-    ObjectMetadata,
-    Alias,
-)
-from dataclay_common.managers.dataclay_manager import (
-    DataclayManager,
-    ExecutionEnvironment,
-)
+from dataclay_common.managers.object_manager import ObjectManager, ObjectMetadata, Alias
+from dataclay_common.managers.dataclay_manager import DataclayManager, ExecutionEnvironment
 from dataclay_common.exceptions.exceptions import *
 
 from dataclay_mds.conf import settings
@@ -169,16 +161,7 @@ class MetadataService:
     # Object Metadata #
     ###################
 
-    def register_objects(self, objects_info, backend_id, lang):
-        raise
-        objects_id = []
-        for object_info in objects_info:
-            object_id = self.register_object(object_info, backend_id, lang)
-            objects_id.append(object_id)
-
-        return objects_id
-
-    def register_object(self, object_md, session_id):
+    def register_object(self, session_id, object_md):
 
         # TODO: If session_id is none, set the object_md owner
         #       and the dataset (is also none) to federation default
@@ -191,14 +174,39 @@ class MetadataService:
         object_md.owner = session.username
 
         # Checks that the account has access to the dataset
-        dataset = self.dataset_mgr.get_dataset(object_md.dataset_name)
-        if not dataset.is_public:
-            account = self.account_mgr.get_account(session.username)
-            if object_md.dataset_name not in account.datasets:
-                raise DatasetIsNotAccessibleError
+        if object_md.dataset_name != session.default_dataset:
+            dataset = self.dataset_mgr.get_dataset(object_md.dataset_name)
+            if not dataset.is_public:
+                account = self.account_mgr.get_account(session.username)
+                if object_md.dataset_name not in account.datasets:
+                    raise DatasetIsNotAccessibleError
 
         # Store alias (if not none) and object_md to etcd
         if object_md.alias_name is not None:
             alias = Alias(object_md.alias_name, object_md.dataset_name, object_md.id)
-            self.object_mgr.put(alias)
+            self.object_mgr.new_alias(alias)
         self.object_mgr.register_object(object_md)
+
+    def get_object_from_alias(self, session_id, alias_name, dataset_name):
+
+        # Checks that session exists and is active
+        session = self.session_mgr.get_session(session_id)
+        if not session.is_active:
+            raise SessionIsNotActiveError
+
+        # Check datset_name empty or None
+        if not dataset_name:
+            dataset_name = session.default_dataset
+        elif dataset_name != session.default_dataset:
+            # Checks that the account has access to the dataset
+            dataset = self.dataset_mgr.get_dataset(dataset_name)
+            if not dataset.is_public:
+                account = self.account_mgr.get_account(session.username)
+                if dataset_name not in account.datasets:
+                    raise DatasetIsNotAccessibleError
+
+        alias = self.object_mgr.get_alias(alias_name, dataset_name)
+
+        object_md = self.object_mgr.get_object_md(alias.object_id)
+
+        return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]
