@@ -131,3 +131,15 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
         return metadata_service_pb2.GetObjectFromAliasResponse(
             object_id=object_id, class_id=class_id, hint=hint
         )
+
+    def DeleteAlias(self, request, context):
+        try:
+            self.metadata_service.delete_alias(
+                request.session_id, request.alias_name, request.dataset_name
+            )
+        except Exception as e:
+            context.set_details(str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return Empty()
+        return Empty()

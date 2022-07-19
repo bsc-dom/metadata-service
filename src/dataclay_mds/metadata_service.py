@@ -206,5 +206,17 @@ class MetadataService:
 
         alias = self.object_mgr.get_alias(alias_name, dataset_name)
         object_md = self.object_mgr.get_object_md(alias.object_id)
-
         return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]
+
+    def delete_alias(self, session_id, alias_name, dataset_name):
+
+        # Checks that session exist and is active
+        session = self.session_mgr.get_session(session_id)
+        if not session.is_active:
+            raise SessionIsNotActiveError(session_id)
+
+        # If dataset is None or empty, set to session's default_dataset
+        if not dataset_name:
+            dataset_name = session.default_dataset
+
+        self.object_mgr.delete_alias(alias_name, dataset_name)
