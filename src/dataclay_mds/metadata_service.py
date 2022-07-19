@@ -71,7 +71,7 @@ class MetadataService:
 
         # Validates account credentials
         account = self.account_mgr.get_account(username)
-        if not account.validate(password):
+        if not account.verify(password):
             raise AccountInvalidCredentialsError(username)
 
         # Validates accounts access to default_dataset
@@ -111,7 +111,7 @@ class MetadataService:
 
         # Validates account credentials
         account = self.account_mgr.get_account(username)
-        if not account.validate(password):
+        if not account.verify(password):
             raise AccountInvalidCredentialsError(username)
 
         # Creates new dataset and updates account's list of datasets
