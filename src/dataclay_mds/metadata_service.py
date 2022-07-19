@@ -180,8 +180,8 @@ class MetadataService:
                 if object_md.dataset_name not in account.datasets:
                     raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
 
-        # Store alias (if not none) and object_md to etcd
-        if object_md.alias_name is not None:
+        # Store alias (if not none nor empty) and object_md to etcd
+        if object_md.alias_name:
             alias = Alias(object_md.alias_name, object_md.dataset_name, object_md.id)
             self.object_mgr.new_alias(alias)
         self.object_mgr.register_object(object_md)
