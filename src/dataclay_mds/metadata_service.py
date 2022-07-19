@@ -72,12 +72,12 @@ class MetadataService:
         # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
-            raise Exception("Account is not valid!")
+            raise AccountInvalidCredentialsError(username)
 
         # Validates accounts access to default_dataset
         dataset = self.dataset_mgr.get_dataset(default_dataset)
         if not dataset.is_public and default_dataset not in account.datasets:
-            raise Exception(f"Account {username} cannot access {default_dataset} dataset!")
+            raise DatasetIsNotAccessibleError(default_dataset, username)
 
         # Creates a new session
         # TODO: ¿Remove namespaces from Session and Account?
@@ -112,7 +112,7 @@ class MetadataService:
         # Validates account credentials
         account = self.account_mgr.get_account(username)
         if not account.validate(password):
-            raise Exception("Account is not valid!")
+            raise AccountInvalidCredentialsError(username)
 
         # Creates new dataset and updates account's list of datasets
         dataset = Dataset(dataset_name, username)
@@ -169,7 +169,7 @@ class MetadataService:
         # Checks that session exists and is active
         session = self.session_mgr.get_session(session_id)
         if not session.is_active:
-            raise SessionIsNotActiveError
+            raise SessionIsNotActiveError(session_id)
 
         object_md.owner = session.username
 
@@ -179,7 +179,7 @@ class MetadataService:
             if not dataset.is_public:
                 account = self.account_mgr.get_account(session.username)
                 if object_md.dataset_name not in account.datasets:
-                    raise DatasetIsNotAccessibleError
+                    raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
 
         # Store alias (if not none) and object_md to etcd
         if object_md.alias_name is not None:
@@ -192,7 +192,7 @@ class MetadataService:
         # Checks that session exists and is active
         session = self.session_mgr.get_session(session_id)
         if not session.is_active:
-            raise SessionIsNotActiveError
+            raise SessionIsNotActiveError(session_id)
 
         # Check datset_name empty or None
         if not dataset_name:
@@ -203,10 +203,9 @@ class MetadataService:
             if not dataset.is_public:
                 account = self.account_mgr.get_account(session.username)
                 if dataset_name not in account.datasets:
-                    raise DatasetIsNotAccessibleError
+                    raise DatasetIsNotAccessibleError(dataset_name, account.username)
 
         alias = self.object_mgr.get_alias(alias_name, dataset_name)
-
         object_md = self.object_mgr.get_object_md(alias.object_id)
 
         return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]

@@ -25,9 +25,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def NewAccount(self, request, context):
         try:
             result = self.metadata_service.new_account(request.username, request.password)
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return Empty()
@@ -38,9 +37,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             result = self.metadata_service.new_session(
                 request.username, request.password, request.default_dataset
             )
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.NewSessionResponse()
@@ -51,9 +49,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             result = self.metadata_service.new_dataset(
                 request.username, request.password, request.dataset
             )
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return Empty()
@@ -62,9 +59,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def CloseSession(self, request, context):
         try:
             result = self.metadata_service.close_session(request.id)
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return Empty()
@@ -72,14 +68,13 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def GetDataclayID(self, request, context):
         try:
-            result = self.metadata_service.get_dataclay_id()
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+            dataclay_id = self.metadata_service.get_dataclay_id()
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetDataclayIDResponse()
-        return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=str(result))
+        return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=dataclay_id)
 
     def GetAllExecutionEnvironments(self, request, context):
         try:
@@ -89,9 +84,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             response = dict()
             for id, exe_env in result.items():
                 response[id] = exe_env.get_proto()
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
@@ -102,9 +96,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             self.metadata_service.autoregister_ee(
                 request.id, request.name, request.hostname, request.port, request.lang
             )
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return Empty()
@@ -118,9 +111,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
         try:
             object_md = ObjectMetadata.from_proto(request.object_md)
             self.metadata_service.register_object(request.session_id, object_md)
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return Empty()
@@ -131,9 +123,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             object_id, class_id, hint = self.metadata_service.get_object_from_alias(
                 request.session_id, request.alias_name, request.dataset_name
             )
-        except Exception as ex:
-            msg = str(ex)
-            context.set_details(msg)
+        except Exception as e:
+            context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetObjectFromAliasResponse()
