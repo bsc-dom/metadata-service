@@ -125,16 +125,15 @@ class MetadataService:
 
         logger.info(f"Created {dataset.name} dataset for {username} account")
 
-    def close_session(self, id):
-        """Close session by id
+    def close_session(self, session_id):
+        """Close session by id"""
 
-        Args:
-            id : Session id
-        """
+        session = self.session_mgr.get_session(session_id)
+        if not session.is_active:
+            raise SessionIsNotActiveError(session_id)
 
-        # TODO: Check that session exists
-        # TODO: Don't delete session, but set a variable as closed
-        self.session_mgr.delete_session(id)
+        session.is_active = False
+        self.session_mgr.put_session(session)
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
