@@ -137,7 +137,7 @@ class MetadataService:
 
         return self.dataclay_id
 
-    def get_all_execution_environments(self, language, get_external, from_backend):
+    def get_all_execution_environments(self, language, get_external=True, from_backend=False):
         """Get all execution environments"""
 
         # TODO: get_external should
