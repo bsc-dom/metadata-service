@@ -19,7 +19,7 @@ class MetadataServiceSrv:
 
     def start(self):
         # TODO: Get environment variable for global settings
-        self.metadata_service = MetadataService()
+        self.metadata_service = MetadataService(settings.ETCD_HOST, settings.ETCD_PORT)
         self.start_grpc_server()
 
     def start_grpc_server(self):

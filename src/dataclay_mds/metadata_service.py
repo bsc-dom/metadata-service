@@ -10,9 +10,6 @@ from dataclay_common.managers.object_manager import ObjectManager, ObjectMetadat
 from dataclay_common.managers.dataclay_manager import DataclayManager, ExecutionEnvironment
 from dataclay_common.exceptions.exceptions import *
 
-from dataclay_mds.conf import settings
-
-
 FEDERATOR_ACCOUNT_USERNAME = "Federator"
 EXTERNAL_OBJECTS_DATASET_NAME = "ExternalObjects"
 
@@ -20,9 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class MetadataService:
-    def __init__(self):
+    def __init__(self, etcd_host, etcd_port):
         # Creates etcd client
-        self.etcd_client = etcd3.client(settings.ETCD_HOST, settings.ETCD_PORT)
+        self.etcd_client = etcd3.client(etcd_host, etcd_port)
 
         # Creates managers for each class
         self.account_mgr = AccountManager(self.etcd_client)
@@ -160,15 +157,16 @@ class MetadataService:
     # Object Metadata #
     ###################
 
-    def register_object(self, session_id, object_md):
+    def register_object(self, session_id, object_md, check_session=True):
 
         # TODO: If session_id is none, set the object_md owner
         #       and the dataset (is also none) to federation default
 
         # Checks that session exists and is active
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        if check_session:
+            session = self.session_mgr.get_session(session_id)
+            if not session.is_active:
+                raise SessionIsNotActiveError(session_id)
 
         object_md.owner = session.username
 
@@ -180,10 +178,6 @@ class MetadataService:
                 if object_md.dataset_name not in account.datasets:
                     raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
 
-        # Store alias (if not none nor empty) and object_md to etcd
-        if object_md.alias_name:
-            alias = Alias(object_md.alias_name, object_md.dataset_name, object_md.id)
-            self.object_mgr.new_alias(alias)
         self.object_mgr.register_object(object_md)
 
     def get_object_from_alias(self, session_id, alias_name, dataset_name):
