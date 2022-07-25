@@ -157,16 +157,15 @@ class MetadataService:
     # Object Metadata #
     ###################
 
-    def register_object(self, session_id, object_md, check_session=True):
+    def register_object(self, session_id, object_md):
 
         # TODO: If session_id is none, set the object_md owner
         #       and the dataset (is also none) to federation default
 
         # Checks that session exists and is active
-        if check_session:
-            session = self.session_mgr.get_session(session_id)
-            if not session.is_active:
-                raise SessionIsNotActiveError(session_id)
+        session = self.session_mgr.get_session(session_id)
+        if not session.is_active:
+            raise SessionIsNotActiveError(session_id)
 
         object_md.owner = session.username
 
