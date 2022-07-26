@@ -3,11 +3,16 @@ import json
 import uuid
 
 import etcd3
+
 from dataclay_common.managers.account_manager import AccountManager, Account
 from dataclay_common.managers.session_manager import SessionManager, Session
 from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
 from dataclay_common.managers.object_manager import ObjectManager, ObjectMetadata, Alias
-from dataclay_common.managers.dataclay_manager import DataclayManager, ExecutionEnvironment
+from dataclay_common.managers.dataclay_manager import (
+    DataclayManager,
+    ExecutionEnvironment,
+    Dataclay,
+)
 from dataclay_common.exceptions.exceptions import *
 
 FEDERATOR_ACCOUNT_USERNAME = "Federator"
@@ -28,10 +33,12 @@ class MetadataService:
         self.object_mgr = ObjectManager(self.etcd_client)
         self.dataclay_mgr = DataclayManager(self.etcd_client)
 
-        # Set Dataclay id
-        self.dataclay_id = str(uuid.uuid4())
-
         logger.info("Initialized MetadataService")
+
+    def autoregister_mds(self, id, hostname, port, is_this=False):
+        """Autoregister Metadata Service"""
+        dataclay = Dataclay(id, hostname, port, is_this)
+        self.dataclay_mgr.new_dataclay(dataclay)
 
     def new_account(self, username, password):
         """ "Registers a new account
@@ -134,8 +141,8 @@ class MetadataService:
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
-
-        return self.dataclay_id
+        dataclay = self.dataclay_mgr.get_dataclay("this")
+        return dataclay.id
 
     def get_all_execution_environments(self, language, get_external=True, from_backend=False):
         """Get all execution environments"""
@@ -149,7 +156,7 @@ class MetadataService:
 
         # TODO: Check if ee already exists. If so, update its information.
         # TODO: Check connection to ExecutionEnvironment
-        exe_env = ExecutionEnvironment(id, name, hostname, port, lang, self.dataclay_id)
+        exe_env = ExecutionEnvironment(id, name, hostname, port, lang, self.get_dataclay_id())
         self.dataclay_mgr.new_execution_environment(exe_env)
         # TODO: Deploy classes to backend? (better call from ee)
 

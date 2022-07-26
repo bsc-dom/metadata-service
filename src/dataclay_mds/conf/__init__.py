@@ -1,5 +1,6 @@
 import logging
 import os
+import socket
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,11 @@ class Settings:
 
     ETCD_HOST = os.environ["ETCD_HOST"]
     ETCD_PORT = int(os.getenv("ETCD_PORT", "2379"))
+
+    METADATA_SERVICE_HOST = os.getenv(
+        "METADATA_SERVICE_HOST", socket.gethostbyname(socket.gethostname())
+    )
+    METADATA_SERVICE_PORT = int(os.getenv("METADATA_SERVICE_PORT", "16587"))
 
 
 settings = Settings()

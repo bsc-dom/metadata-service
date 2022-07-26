@@ -1,5 +1,6 @@
 from concurrent import futures
 import logging
+import uuid
 
 import grpc
 
@@ -20,6 +21,13 @@ class MetadataServiceSrv:
     def start(self):
         # TODO: Get environment variable for global settings
         self.metadata_service = MetadataService(settings.ETCD_HOST, settings.ETCD_PORT)
+        dataclay_id = str(uuid.uuid4())
+        self.metadata_service.autoregister_mds(
+            dataclay_id,
+            settings.METADATA_SERVICE_HOST,
+            settings.METADATA_SERVICE_PORT,
+            is_this=True,
+        )
         self.start_grpc_server()
 
     def start_grpc_server(self):
