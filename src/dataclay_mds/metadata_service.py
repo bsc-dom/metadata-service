@@ -132,12 +132,19 @@ class MetadataService:
     def close_session(self, session_id):
         """Close session by id"""
 
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        # TODO: decide if close session remove the entry from etcd
+        #       or just set the flag is_active to false
 
-        session.is_active = False
-        self.session_mgr.put_session(session)
+        # session = self.session_mgr.get_session(session_id)
+        # if not session.is_active:
+        #     raise SessionIsNotActiveError(session_id)
+
+        # session.is_active = False
+        # self.session_mgr.put_session(session)
+
+        if not self.session_mgr.exists_session(session_id):
+            raise SessionDoesNotExistError(session_id)
+        self.session_mgr.delete_session(session_id)
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
