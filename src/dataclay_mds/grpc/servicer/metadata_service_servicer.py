@@ -1,5 +1,6 @@
 import logging
 import traceback
+from uuid import UUID
 
 import grpc
 from google.protobuf.empty_pb2 import Empty
@@ -24,7 +25,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewAccount(self, request, context):
         try:
-            result = self.metadata_service.new_account(request.username, request.password)
+            self.metadata_service.new_account(request.username, request.password)
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -34,7 +35,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewSession(self, request, context):
         try:
-            result = self.metadata_service.new_session(
+            session_id = self.metadata_service.new_session(
                 request.username, request.password, request.default_dataset
             )
         except Exception as e:
@@ -42,13 +43,11 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.NewSessionResponse()
-        return metadata_service_pb2.NewSessionResponse(id=result)
+        return metadata_service_pb2.NewSessionResponse(id=str(session_id))
 
     def NewDataset(self, request, context):
         try:
-            result = self.metadata_service.new_dataset(
-                request.username, request.password, request.dataset
-            )
+            self.metadata_service.new_dataset(request.username, request.password, request.dataset)
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -58,7 +57,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def CloseSession(self, request, context):
         try:
-            result = self.metadata_service.close_session(request.id)
+            self.metadata_service.close_session(UUID(request.id))
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -66,7 +65,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             return Empty()
         return Empty()
 
-    def GetDataclayID(self, request, context):
+    def GetDataclayID(self, _, context):
         try:
             dataclay_id = self.metadata_service.get_dataclay_id()
         except Exception as e:
@@ -74,27 +73,27 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetDataclayIDResponse()
-        return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=dataclay_id)
+        return metadata_service_pb2.GetDataclayIDResponse(dataclay_id=str(dataclay_id))
 
     def GetAllExecutionEnvironments(self, request, context):
         try:
-            result = self.metadata_service.get_all_execution_environments(
+            exec_envs = self.metadata_service.get_all_execution_environments(
                 request.language, request.get_external, request.from_backend
             )
             response = dict()
-            for id, exe_env in result.items():
-                response[id] = exe_env.get_proto()
+            for id, exe_env in exec_envs.items():
+                response[str(id)] = exe_env.get_proto()
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
             return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
-        return metadata_service_pb2.GetAllExecutionEnvironmentsResponse(exe_envs=response)
+        return metadata_service_pb2.GetAllExecutionEnvironmentsResponse(exec_envs=response)
 
     def AutoregisterEE(self, request, context):
         try:
             self.metadata_service.autoregister_ee(
-                request.id, request.name, request.hostname, request.port, request.lang
+                UUID(request.id), request.name, request.hostname, request.port, request.lang
             )
         except Exception as e:
             context.set_details(str(e))
@@ -110,7 +109,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def RegisterObject(self, request, context):
         try:
             object_md = ObjectMetadata.from_proto(request.object_md)
-            self.metadata_service.register_object(request.session_id, object_md)
+            self.metadata_service.register_object(UUID(request.session_id), object_md)
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -121,7 +120,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def GetObjectFromAlias(self, request, context):
         try:
             object_id, class_id, hint = self.metadata_service.get_object_from_alias(
-                request.session_id, request.alias_name, request.dataset_name
+                UUID(request.session_id), request.alias_name, request.dataset_name
             )
         except Exception as e:
             context.set_details(str(e))
@@ -129,13 +128,13 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             traceback.print_exc()
             return metadata_service_pb2.GetObjectFromAliasResponse()
         return metadata_service_pb2.GetObjectFromAliasResponse(
-            object_id=object_id, class_id=class_id, hint=hint
+            object_id=str(object_id), class_id=str(class_id), hint=str(hint)
         )
 
     def DeleteAlias(self, request, context):
         try:
             self.metadata_service.delete_alias(
-                request.session_id, request.alias_name, request.dataset_name
+                UUID(request.session_id), request.alias_name, request.dataset_name
             )
         except Exception as e:
             context.set_details(str(e))

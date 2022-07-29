@@ -86,15 +86,18 @@ class MetadataService:
         # Creates a new session
         # TODO: ¿Remove namespaces from Session and Account?
         session = Session(
+            id=uuid.uuid4(),
             username=username,
-            datasets=account.datasets,
-            namespaces=account.namespaces,
             default_dataset=default_dataset,
+            is_active=True,
         )
         self.session_mgr.put_session(session)
 
         logger.info(f"Created new session for {username} with id {session.id}")
         return session.id
+
+    def get_session(self, session_id):
+        return self.session_mgr.get_session(session_id)
 
     def new_dataset(self, username, password, dataset_name):
         """ "Registers a new dataset
@@ -194,6 +197,8 @@ class MetadataService:
         self.object_mgr.register_object(object_md)
 
     def get_object_from_alias(self, session_id, alias_name, dataset_name):
+        # TODO: Create generic get_object_md, that can be obtained with alias + datset
+        #       or with object_id. It should return an ObjectMetadata object.
 
         # Checks that session exists and is active
         session = self.session_mgr.get_session(session_id)
