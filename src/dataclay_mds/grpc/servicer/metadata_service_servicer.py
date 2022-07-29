@@ -81,8 +81,8 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
                 request.language, request.get_external, request.from_backend
             )
             response = dict()
-            for id, exe_env in exec_envs.items():
-                response[str(id)] = exe_env.get_proto()
+            for id, exec_env in exec_envs.items():
+                response[str(id)] = exec_env.get_proto()
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
