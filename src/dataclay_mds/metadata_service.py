@@ -147,7 +147,7 @@ class MetadataService:
 
         if not self.session_mgr.exists_session(session_id):
             raise SessionDoesNotExistError(session_id)
-        self.session_mgr.delete_session(session_id)
+        # self.session_mgr.delete_session(session_id)
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
@@ -184,7 +184,11 @@ class MetadataService:
         if not session.is_active:
             raise SessionIsNotActiveError(session_id)
 
-        object_md.owner = session.username
+        if not object_md.owner:
+            object_md.owner = session.username
+
+        if not object_md.dataset_name:
+            object_md.dataset_name = session.default_dataset
 
         # Checks that the account has access to the dataset
         if object_md.dataset_name != session.default_dataset:
