@@ -161,12 +161,12 @@ class MetadataService:
         # TODO: Use exposed_ip_for_client if not from_backend to hide information?
         return self.dataclay_mgr.get_all_execution_environments(language)
 
-    def autoregister_ee(self, id, name, hostname, port, lang):
+    def autoregister_ee(self, id, hostname, port, sl_name, lang):
         """Autoregister execution environment"""
 
         # TODO: Check if ee already exists. If so, update its information.
         # TODO: Check connection to ExecutionEnvironment
-        exe_env = ExecutionEnvironment(id, name, hostname, port, lang, self.get_dataclay_id())
+        exe_env = ExecutionEnvironment(id, hostname, port, sl_name, lang, self.get_dataclay_id())
         self.dataclay_mgr.new_execution_environment(exe_env)
         # TODO: Deploy classes to backend? (better call from ee)
 

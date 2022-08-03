@@ -93,7 +93,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def AutoregisterEE(self, request, context):
         try:
             self.metadata_service.autoregister_ee(
-                UUID(request.id), request.name, request.hostname, request.port, request.lang
+                UUID(request.id), request.hostname, request.port, request.sl_name, request.lang
             )
         except Exception as e:
             context.set_details(str(e))
