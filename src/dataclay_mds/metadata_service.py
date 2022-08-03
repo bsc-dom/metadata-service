@@ -154,6 +154,9 @@ class MetadataService:
         dataclay = self.dataclay_mgr.get_dataclay("this")
         return dataclay.id
 
+    def get_storage_location(self, sl_name):
+        return self.dataclay_mgr.get_storage_location(sl_name)
+
     def get_all_execution_environments(self, language, get_external=True, from_backend=False):
         """Get all execution environments"""
 
