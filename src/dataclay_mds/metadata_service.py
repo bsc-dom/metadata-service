@@ -8,6 +8,7 @@ from dataclay_common.managers.account_manager import AccountManager, Account
 from dataclay_common.managers.session_manager import SessionManager, Session
 from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
 from dataclay_common.managers.object_manager import ObjectManager, ObjectMetadata, Alias
+from dataclay_common.managers.metaclass_manager import MetaclassManager, Metaclass
 from dataclay_common.managers.dataclay_manager import (
     DataclayManager,
     ExecutionEnvironment,
@@ -31,6 +32,7 @@ class MetadataService:
         self.session_mgr = SessionManager(self.etcd_client)
         self.dataset_mgr = DatasetManager(self.etcd_client)
         self.object_mgr = ObjectManager(self.etcd_client)
+        self.metaclass_mgr = MetaclassManager(self.etcd_client)
         self.dataclay_mgr = DataclayManager(self.etcd_client)
 
         logger.info("Initialized MetadataService")
@@ -239,3 +241,6 @@ class MetadataService:
             dataset_name = session.default_dataset
 
         self.object_mgr.delete_alias(alias_name, dataset_name)
+
+    def get_metaclass(self, metaclass_id):
+        return self.metaclass_mgr.get_metaclass(metaclass_id)
