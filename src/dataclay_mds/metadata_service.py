@@ -205,6 +205,26 @@ class MetadataService:
 
         self.object_mgr.register_object(object_md)
 
+    def update_object(self, session_id, object_md):
+
+        # TODO: If session_id is none, set the object_md owner
+        #       and the dataset (is also none) to federation default
+
+        # Checks that session exists and is active
+        session = self.session_mgr.get_session(session_id)
+        if not session.is_active:
+            raise SessionIsNotActiveError(session_id)
+
+        # Checks that the account has access to the dataset
+        if object_md.dataset_name != session.default_dataset:
+            dataset = self.dataset_mgr.get_dataset(object_md.dataset_name)
+            if not dataset.is_public:
+                account = self.account_mgr.get_account(session.username)
+                if object_md.dataset_name not in account.datasets:
+                    raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
+
+        self.object_mgr.update_object(object_md)
+
     def get_object_from_alias(self, session_id, alias_name, dataset_name):
         # TODO: Create generic get_object_md, that can be obtained with alias + datset
         #       or with object_id. It should return an ObjectMetadata object.
