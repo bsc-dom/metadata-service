@@ -35,15 +35,15 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
 
     def NewSession(self, request, context):
         try:
-            session_id = self.metadata_service.new_session(
-                request.username, request.password, request.default_dataset
+            session = self.metadata_service.new_session(
+                request.username, request.password, request.dataset_name
             )
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return metadata_service_pb2.NewSessionResponse()
-        return metadata_service_pb2.NewSessionResponse(id=str(session_id))
+            return common_messages_pb2.Session()
+        return session.get_proto()
 
     def NewDataset(self, request, context):
         try:

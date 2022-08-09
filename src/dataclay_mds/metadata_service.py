@@ -60,16 +60,16 @@ class MetadataService:
 
         logger.info(f"Created new account for {username}")
 
-    def new_session(self, username, password, default_dataset):
+    def new_session(self, username, password, dataset_name):
         """ "Registers a new session
 
         Validates the account credentials, and creates a new session
-        associated to the account and the default_dataset.
+        associated to the account and the dataset_name.
 
         Args:
             username : Accounts username
             password : Accounts password
-            default_dataset: Name of the dataset to store objects
+            dataset_name: Name of the dataset to store objects
 
         Raises:
             Exception('Account is not valid!'): If wrong credentials
@@ -80,23 +80,23 @@ class MetadataService:
         if not account.verify(password):
             raise AccountInvalidCredentialsError(username)
 
-        # Validates accounts access to default_dataset
-        dataset = self.dataset_mgr.get_dataset(default_dataset)
-        if not dataset.is_public and default_dataset not in account.datasets:
-            raise DatasetIsNotAccessibleError(default_dataset, username)
+        # Validates accounts access to dataset_name
+        dataset = self.dataset_mgr.get_dataset(dataset_name)
+        if not dataset.is_public and dataset_name not in account.datasets:
+            raise DatasetIsNotAccessibleError(dataset_name, username)
 
         # Creates a new session
         # TODO: ¿Remove namespaces from Session and Account?
         session = Session(
             id=uuid.uuid4(),
             username=username,
-            default_dataset=default_dataset,
+            dataset_name=dataset_name,
             is_active=True,
         )
         self.session_mgr.put_session(session)
 
         logger.info(f"Created new session for {username} with id {session.id}")
-        return session.id
+        return session
 
     def get_session(self, session_id):
         return self.session_mgr.get_session(session_id)
@@ -181,47 +181,27 @@ class MetadataService:
 
     def register_object(self, session_id, object_md):
 
-        # TODO: If session_id is none, set the object_md owner
-        #       and the dataset (is also none) to federation default
-
         # Checks that session exists and is active
         session = self.session_mgr.get_session(session_id)
         if not session.is_active:
             raise SessionIsNotActiveError(session_id)
 
-        if not object_md.owner:
-            object_md.owner = session.username
-
-        if not object_md.dataset_name:
-            object_md.dataset_name = session.default_dataset
-
-        # Checks that the account has access to the dataset
-        if object_md.dataset_name != session.default_dataset:
-            dataset = self.dataset_mgr.get_dataset(object_md.dataset_name)
-            if not dataset.is_public:
-                account = self.account_mgr.get_account(session.username)
-                if object_md.dataset_name not in account.datasets:
-                    raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
+        # NOTE: If a session can just access one dataset, then this
+        # dataset will always be the session's default dataset.
+        # object_md.dataset_name = session.dataset_name
 
         self.object_mgr.register_object(object_md)
 
     def update_object(self, session_id, object_md):
 
-        # TODO: If session_id is none, set the object_md owner
-        #       and the dataset (is also none) to federation default
-
         # Checks that session exists and is active
         session = self.session_mgr.get_session(session_id)
         if not session.is_active:
             raise SessionIsNotActiveError(session_id)
 
-        # Checks that the account has access to the dataset
-        if object_md.dataset_name != session.default_dataset:
-            dataset = self.dataset_mgr.get_dataset(object_md.dataset_name)
-            if not dataset.is_public:
-                account = self.account_mgr.get_account(session.username)
-                if object_md.dataset_name not in account.datasets:
-                    raise DatasetIsNotAccessibleError(object_md.dataset_name, account.username)
+        # NOTE: If a session can just access one dataset, then this
+        # dataset will always be the session's default dataset.
+        object_md.dataset_name = session.dataset_name
 
         self.object_mgr.update_object(object_md)
 
@@ -236,8 +216,8 @@ class MetadataService:
 
         # Check datset_name empty or None
         if not dataset_name:
-            dataset_name = session.default_dataset
-        elif dataset_name != session.default_dataset:
+            dataset_name = session.dataset_name
+        elif dataset_name != session.dataset_name:
             # Checks that the account has access to the dataset
             dataset = self.dataset_mgr.get_dataset(dataset_name)
             if not dataset.is_public:
@@ -256,9 +236,9 @@ class MetadataService:
         if not session.is_active:
             raise SessionIsNotActiveError(session_id)
 
-        # If dataset is None or empty, set to session's default_dataset
+        # If dataset is None or empty, set to session's dataset_name
         if not dataset_name:
-            dataset_name = session.default_dataset
+            dataset_name = session.dataset_name
 
         self.object_mgr.delete_alias(alias_name, dataset_name)
 
