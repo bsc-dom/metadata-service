@@ -181,10 +181,11 @@ class MetadataService:
 
     def register_object(self, session_id, object_md):
 
+        # NOTE: If only EE can register objects, no need to check session
         # Checks that session exists and is active
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        # session = self.session_mgr.get_session(session_id)
+        # if not session.is_active:
+        #     raise SessionIsNotActiveError(session_id)
 
         # NOTE: If a session can just access one dataset, then this
         # dataset will always be the session's default dataset.
@@ -194,14 +195,15 @@ class MetadataService:
 
     def update_object(self, session_id, object_md):
 
+        # NOTE: If only EE can update objects, no need to check session
         # Checks that session exists and is active
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        # session = self.session_mgr.get_session(session_id)
+        # if not session.is_active:
+        #     raise SessionIsNotActiveError(session_id)
 
         # NOTE: If a session can just access one dataset, then this
         # dataset will always be the session's default dataset.
-        object_md.dataset_name = session.dataset_name
+        # object_md.dataset_name = session.dataset_name
 
         self.object_mgr.update_object(object_md)
 
