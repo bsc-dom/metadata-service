@@ -207,40 +207,41 @@ class MetadataService:
 
         self.object_mgr.update_object(object_md)
 
-    def get_object_from_alias(self, session_id, alias_name, dataset_name):
+    def get_object_from_alias(self, session_id, alias_name, dataset_name, check_session=True):
         # TODO: Create generic get_object_md, that can be obtained with alias + datset
         #       or with object_id. It should return an ObjectMetadata object.
 
-        # Checks that session exists and is active
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        if check_session:
+            # Checks that session exists and is active
+            session = self.session_mgr.get_session(session_id)
+            if not session.is_active:
+                raise SessionIsNotActiveError(session_id)
 
-        # Check datset_name empty or None
-        if not dataset_name:
-            dataset_name = session.dataset_name
-        elif dataset_name != session.dataset_name:
-            # Checks that the account has access to the dataset
-            dataset = self.dataset_mgr.get_dataset(dataset_name)
-            if not dataset.is_public:
-                account = self.account_mgr.get_account(session.username)
-                if dataset_name not in account.datasets:
-                    raise DatasetIsNotAccessibleError(dataset_name, account.username)
+            # Checks that datset_name is empty or equal to session's dataset
+            if not dataset_name:
+                dataset_name = session.dataset_name
+            elif dataset_name != session.dataset_name:
+                raise DatasetIsNotAccessibleError(dataset_name, session.username)
 
         alias = self.object_mgr.get_alias(alias_name, dataset_name)
         object_md = self.object_mgr.get_object_md(alias.object_id)
         return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]
 
-    def delete_alias(self, session_id, alias_name, dataset_name):
+    def delete_alias(self, session_id, alias_name, dataset_name, check_session=True):
 
-        # Checks that session exist and is active
-        session = self.session_mgr.get_session(session_id)
-        if not session.is_active:
-            raise SessionIsNotActiveError(session_id)
+        # NOTE: If the session is not checked, we supose the dataset_name is correct
+        #       since only the EE is able to set check_session to False
+        if check_session:
+            # Checks that session exist and is active
+            session = self.session_mgr.get_session(session_id)
+            if not session.is_active:
+                raise SessionIsNotActiveError(session_id)
 
-        # If dataset is None or empty, set to session's dataset_name
-        if not dataset_name:
-            dataset_name = session.dataset_name
+            # Check that the dataset_name is the same as session's dataset
+            if not dataset_name:
+                dataset_name = session.dataset_name
+            elif dataset_name != session.dataset_name:
+                raise DatasetIsNotAccessibleError(dataset_name, session.username)
 
         self.object_mgr.delete_alias(alias_name, dataset_name)
 
