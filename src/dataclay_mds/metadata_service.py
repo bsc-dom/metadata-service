@@ -102,7 +102,7 @@ class MetadataService:
         return self.session_mgr.get_session(session_id)
 
     def new_dataset(self, username, password, dataset_name):
-        """ "Registers a new dataset
+        """Registers a new dataset
 
         Validates the account credentials, and creates a new dataset
         associated to the account. It updates the account metadata
@@ -207,7 +207,7 @@ class MetadataService:
 
         self.object_mgr.update_object(object_md)
 
-    def get_object_from_alias(self, session_id, alias_name, dataset_name, check_session=True):
+    def get_object_from_alias(self, session_id, alias_name, dataset_name, check_session=False):
         # TODO: Create generic get_object_md, that can be obtained with alias + datset
         #       or with object_id. It should return an ObjectMetadata object.
 
@@ -227,7 +227,7 @@ class MetadataService:
         object_md = self.object_mgr.get_object_md(alias.object_id)
         return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]
 
-    def delete_alias(self, session_id, alias_name, dataset_name, check_session=True):
+    def delete_alias(self, session_id, alias_name, dataset_name, check_session=False):
 
         # NOTE: If the session is not checked, we supose the dataset_name is correct
         #       since only the EE is able to set check_session to False

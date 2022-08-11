@@ -120,7 +120,10 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def GetObjectFromAlias(self, request, context):
         try:
             object_id, class_id, hint = self.metadata_service.get_object_from_alias(
-                UUID(request.session_id), request.alias_name, request.dataset_name
+                UUID(request.session_id),
+                request.alias_name,
+                request.dataset_name,
+                check_session=True,
             )
         except Exception as e:
             context.set_details(str(e))
@@ -134,7 +137,10 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     def DeleteAlias(self, request, context):
         try:
             self.metadata_service.delete_alias(
-                UUID(request.session_id), request.alias_name, request.dataset_name
+                UUID(request.session_id),
+                request.alias_name,
+                request.dataset_name,
+                check_session=True,
             )
         except Exception as e:
             context.set_details(str(e))
