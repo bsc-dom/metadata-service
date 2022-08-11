@@ -1,9 +1,8 @@
-import sys
 import argparse
 import logging
+import sys
 
 import grpc
-
 from dataclay_common.clients.metadata_service_client import MDSClient
 
 logging.basicConfig(level=logging.DEBUG)

@@ -1,20 +1,16 @@
-import logging
 import json
+import logging
 import uuid
 
 import etcd3
-
-from dataclay_common.managers.account_manager import AccountManager, Account
-from dataclay_common.managers.session_manager import SessionManager, Session
-from dataclay_common.managers.dataset_manager import DatasetManager, Dataset
-from dataclay_common.managers.object_manager import ObjectManager, ObjectMetadata, Alias
-from dataclay_common.managers.metaclass_manager import MetaclassManager, Metaclass
-from dataclay_common.managers.dataclay_manager import (
-    DataclayManager,
-    ExecutionEnvironment,
-    Dataclay,
-)
 from dataclay_common.exceptions.exceptions import *
+from dataclay_common.managers.account_manager import Account, AccountManager
+from dataclay_common.managers.dataclay_manager import (Dataclay, DataclayManager,
+                                                       ExecutionEnvironment)
+from dataclay_common.managers.dataset_manager import Dataset, DatasetManager
+from dataclay_common.managers.metaclass_manager import Metaclass, MetaclassManager
+from dataclay_common.managers.object_manager import Alias, ObjectManager, ObjectMetadata
+from dataclay_common.managers.session_manager import Session, SessionManager
 
 FEDERATOR_ACCOUNT_USERNAME = "Federator"
 EXTERNAL_OBJECTS_DATASET_NAME = "ExternalObjects"

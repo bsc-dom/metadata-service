@@ -1,6 +1,7 @@
 # TODO: Remove class
 
 import etcd3
+
 from dataclay_mds.conf import settings
 
 
