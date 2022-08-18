@@ -4,8 +4,11 @@ from uuid import UUID
 
 import grpc
 from dataclay_common.managers.object_manager import ObjectMetadata
-from dataclay_common.protos import (common_messages_pb2, metadata_service_pb2,
-                                    metadata_service_pb2_grpc)
+from dataclay_common.protos import (
+    common_messages_pb2,
+    metadata_service_pb2,
+    metadata_service_pb2_grpc,
+)
 from google.protobuf.empty_pb2 import Empty
 
 logger = logging.getLogger(__name__)
@@ -114,22 +117,34 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             return Empty()
         return Empty()
 
-    def GetObjectFromAlias(self, request, context):
+    def GetObjectMDById(self, request, context):
         try:
-            object_id, class_id, hint = self.metadata_service.get_object_from_alias(
+            object_md = self.metadata_service.get_object_md_by_id(
+                UUID(request.object_id),
                 UUID(request.session_id),
-                request.alias_name,
-                request.dataset_name,
                 check_session=True,
             )
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
             traceback.print_exc()
-            return metadata_service_pb2.GetObjectFromAliasResponse()
-        return metadata_service_pb2.GetObjectFromAliasResponse(
-            object_id=str(object_id), class_id=str(class_id), hint=str(hint)
-        )
+            return common_messages_pb2.ObjectMetadata()
+        return object_md.get_proto()
+
+    def GetObjectMDByAlias(self, request, context):
+        try:
+            object_md = self.metadata_service.get_object_md_by_alias(
+                request.alias_name,
+                request.dataset_name,
+                UUID(request.session_id),
+                check_session=True,
+            )
+        except Exception as e:
+            context.set_details(str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            traceback.print_exc()
+            return common_messages_pb2.ObjectMetadata()
+        return object_md.get_proto()
 
     def DeleteAlias(self, request, context):
         try:

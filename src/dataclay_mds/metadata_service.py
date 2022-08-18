@@ -5,8 +5,11 @@ import uuid
 import etcd3
 from dataclay_common.exceptions.exceptions import *
 from dataclay_common.managers.account_manager import Account, AccountManager
-from dataclay_common.managers.dataclay_manager import (Dataclay, DataclayManager,
-                                                       ExecutionEnvironment)
+from dataclay_common.managers.dataclay_manager import (
+    Dataclay,
+    DataclayManager,
+    ExecutionEnvironment,
+)
 from dataclay_common.managers.dataset_manager import Dataset, DatasetManager
 from dataclay_common.managers.metaclass_manager import Metaclass, MetaclassManager
 from dataclay_common.managers.object_manager import Alias, ObjectManager, ObjectMetadata
@@ -221,7 +224,35 @@ class MetadataService:
 
         alias = self.object_mgr.get_alias(alias_name, dataset_name)
         object_md = self.object_mgr.get_object_md(alias.object_id)
-        return alias.object_id, object_md.class_id, object_md.execution_environment_ids[0]
+        return alias.object_id, object_md.class_id, object_md.ee_id
+
+    def get_object_md_by_id(self, object_id, session_id=None, check_session=False):
+        if check_session:
+            session = self.session_mgr.get_session(session_id)
+            if not session.is_active:
+                raise SessionIsNotActiveError(session_id)
+
+        object_md = self.object_mgr.get_object_md(object_id)
+        return object_md
+
+    def get_object_md_by_alias(
+        self, alias_name, dataset_name, session_id=None, check_session=False
+    ):
+        if check_session:
+            # Checks that session exists and is active
+            session = self.session_mgr.get_session(session_id)
+            if not session.is_active:
+                raise SessionIsNotActiveError(session_id)
+
+            # Checks that datset_name is empty or equal to session's dataset
+            if not dataset_name:
+                dataset_name = session.dataset_name
+            elif dataset_name != session.dataset_name:
+                raise DatasetIsNotAccessibleError(dataset_name, session.username)
+
+        alias = self.object_mgr.get_alias(alias_name, dataset_name)
+        object_md = self.object_mgr.get_object_md(alias.object_id)
+        return object_md
 
     def delete_alias(self, session_id, alias_name, dataset_name, check_session=False):
 
