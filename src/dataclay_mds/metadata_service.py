@@ -41,6 +41,10 @@ class MetadataService:
         dataclay = Dataclay(id, hostname, port, is_this)
         self.dataclay_mgr.new_dataclay(dataclay)
 
+    ###################
+    # Account Manager #
+    ###################
+
     def new_account(self, username, password):
         """ "Registers a new account
 
@@ -58,6 +62,10 @@ class MetadataService:
         self.account_mgr.new_account(account)
 
         logger.info(f"Created new account for {username}")
+
+    ###################
+    # Session Manager #
+    ###################
 
     def new_session(self, username, password, dataset_name):
         """ "Registers a new session
@@ -100,6 +108,27 @@ class MetadataService:
     def get_session(self, session_id):
         return self.session_mgr.get_session(session_id)
 
+    def close_session(self, session_id):
+        """Close session by id"""
+
+        # TODO: decide if close session remove the entry from etcd
+        #       or just set the flag is_active to false
+
+        # session = self.session_mgr.get_session(session_id)
+        # if not session.is_active:
+        #     raise SessionIsNotActiveError(session_id)
+
+        # session.is_active = False
+        # self.session_mgr.put_session(session)
+
+        if not self.session_mgr.exists_session(session_id):
+            raise SessionDoesNotExistError(session_id)
+        # self.session_mgr.delete_session(session_id)
+
+    ###################
+    # Dataset Manager #
+    ###################
+
     def new_dataset(self, username, password, dataset_name):
         """Registers a new dataset
 
@@ -133,27 +162,29 @@ class MetadataService:
 
         logger.info(f"Created {dataset.name} dataset for {username} account")
 
-    def close_session(self, session_id):
-        """Close session by id"""
+    #####################
+    # Metaclass Manager #
+    #####################
 
-        # TODO: decide if close session remove the entry from etcd
-        #       or just set the flag is_active to false
+    def get_metaclass(self, metaclass_id):
+        return self.metaclass_mgr.get_metaclass(metaclass_id)
 
-        # session = self.session_mgr.get_session(session_id)
-        # if not session.is_active:
-        #     raise SessionIsNotActiveError(session_id)
-
-        # session.is_active = False
-        # self.session_mgr.put_session(session)
-
-        if not self.session_mgr.exists_session(session_id):
-            raise SessionDoesNotExistError(session_id)
-        # self.session_mgr.delete_session(session_id)
+    #####################
+    # Dataclay Metadata #
+    #####################
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
         dataclay = self.dataclay_mgr.get_dataclay("this")
         return dataclay.id
+
+    def get_num_objects(self, language):
+        all_object_md = self.object_mgr.get_all_object_md(language)
+        return len(all_object_md)
+
+    #####################
+    # EE-SL information #
+    #####################
 
     def get_storage_location(self, sl_name):
         return self.dataclay_mgr.get_storage_location(sl_name)
@@ -271,6 +302,3 @@ class MetadataService:
                 raise DatasetIsNotAccessibleError(dataset_name, session.username)
 
         self.object_mgr.delete_alias(alias_name, dataset_name)
-
-    def get_metaclass(self, metaclass_id):
-        return self.metaclass_mgr.get_metaclass(metaclass_id)
