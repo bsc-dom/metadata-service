@@ -90,6 +90,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
             return metadata_service_pb2.GetAllExecutionEnvironmentsResponse()
         return metadata_service_pb2.GetAllExecutionEnvironmentsResponse(exec_envs=response)
 
+    # TODO: Remove it. EE can access ETCD directly.
     def AutoregisterEE(self, request, context):
         try:
             self.metadata_service.autoregister_ee(
@@ -106,6 +107,7 @@ class MetadataServiceServicer(metadata_service_pb2_grpc.MetadataServiceServicer)
     # Object Metadata #
     ###################
 
+    # TODO: Remove it. Only EE should be able to call it.
     def RegisterObject(self, request, context):
         try:
             object_md = ObjectMetadata.from_proto(request.object_md)

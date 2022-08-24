@@ -1,4 +1,3 @@
-import json
 import logging
 import uuid
 
@@ -11,9 +10,10 @@ from dataclay_common.managers.dataclay_manager import (
     ExecutionEnvironment,
 )
 from dataclay_common.managers.dataset_manager import Dataset, DatasetManager
-from dataclay_common.managers.metaclass_manager import Metaclass, MetaclassManager
-from dataclay_common.managers.object_manager import Alias, ObjectManager, ObjectMetadata
+from dataclay_common.managers.metaclass_manager import MetaclassManager
+from dataclay_common.managers.object_manager import ObjectManager
 from dataclay_common.managers.session_manager import Session, SessionManager
+
 
 FEDERATOR_ACCOUNT_USERNAME = "Federator"
 EXTERNAL_OBJECTS_DATASET_NAME = "ExternalObjects"
@@ -35,11 +35,6 @@ class MetadataService:
         self.dataclay_mgr = DataclayManager(self.etcd_client)
 
         logger.info("Initialized MetadataService")
-
-    def autoregister_mds(self, id, hostname, port, is_this=False):
-        """Autoregister Metadata Service"""
-        dataclay = Dataclay(id, hostname, port, is_this)
-        self.dataclay_mgr.new_dataclay(dataclay)
 
     ###################
     # Account Manager #
@@ -181,6 +176,14 @@ class MetadataService:
     def get_num_objects(self, language):
         all_object_md = self.object_mgr.get_all_object_md(language)
         return len(all_object_md)
+
+    def autoregister_mds(self, id, hostname, port, is_this=False):
+        """Autoregister Metadata Service"""
+        dataclay = Dataclay(id, hostname, port, is_this)
+        self.dataclay_mgr.new_dataclay(dataclay)
+
+    def get_dataclay(self, dataclay_id):
+        return self.dataclay_mgr.get_dataclay(dataclay_id)
 
     #####################
     # EE-SL information #
