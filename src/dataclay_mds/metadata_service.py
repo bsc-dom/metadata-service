@@ -15,20 +15,14 @@ from dataclay_common.managers.object_manager import ObjectManager
 from dataclay_common.managers.session_manager import Session, SessionManager
 
 from opentelemetry import trace
-from opentelemetry import metrics
 
 FEDERATOR_ACCOUNT_USERNAME = "Federator"
 EXTERNAL_OBJECTS_DATASET_NAME = "ExternalObjects"
 
-# Acquire a tracer
-tracer = trace.get_tracer(__name__)
-meter = metrics.get_meter(__name__)
-logger = logging.getLogger(__name__)
 
-account_counter = meter.create_counter(
-    "account_counter",
-    description="The number of accounts created",
-)
+# Acquire a tracer and logger
+tracer = trace.get_tracer(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MetadataService:
@@ -60,7 +54,7 @@ class MetadataService:
             password : Accounts password
         """
 
-        with tracer.start_as_current_span("new_account") as accountspan:
+        with tracer.start_as_current_span("new_account", attributes={"username": username}) as span:
 
             # TODO: Ask for admin credentials for creating the account.
 
@@ -68,8 +62,6 @@ class MetadataService:
             account = Account(username, password)
             self.account_mgr.new_account(account)
 
-            accountspan.set_attribute("account.name", username)
-            account_counter.add(1)
             logger.info(f"Created new account for {username}")
 
     ###################
