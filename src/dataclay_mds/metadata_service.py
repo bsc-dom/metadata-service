@@ -53,8 +53,7 @@ class MetadataService:
             username : Accounts username
             password : Accounts password
         """
-
-        with tracer.start_as_current_span("new_account", attributes={"username": username}) as span:
+        with tracer.start_as_current_span("new_account", attributes={"username": username}):
 
             # TODO: Ask for admin credentials for creating the account.
 
@@ -82,49 +81,52 @@ class MetadataService:
         Raises:
             Exception('Account is not valid!'): If wrong credentials
         """
+        with tracer.start_as_current_span(
+            "new_session", attributes={"username": username, "dataset_name": dataset_name}
+        ):
+            # Validates account credentials
+            account = self.account_mgr.get_account(username)
+            if not account.verify(password):
+                raise AccountInvalidCredentialsError(username)
 
-        # Validates account credentials
-        account = self.account_mgr.get_account(username)
-        if not account.verify(password):
-            raise AccountInvalidCredentialsError(username)
+            # Validates accounts access to dataset_name
+            dataset = self.dataset_mgr.get_dataset(dataset_name)
+            if not dataset.is_public and dataset_name not in account.datasets:
+                raise DatasetIsNotAccessibleError(dataset_name, username)
 
-        # Validates accounts access to dataset_name
-        dataset = self.dataset_mgr.get_dataset(dataset_name)
-        if not dataset.is_public and dataset_name not in account.datasets:
-            raise DatasetIsNotAccessibleError(dataset_name, username)
+            # Creates a new session
+            # TODO: ¿Remove namespaces from Session and Account?
+            session = Session(
+                id=uuid.uuid4(),
+                username=username,
+                dataset_name=dataset_name,
+                is_active=True,
+            )
+            self.session_mgr.put_session(session)
 
-        # Creates a new session
-        # TODO: ¿Remove namespaces from Session and Account?
-        session = Session(
-            id=uuid.uuid4(),
-            username=username,
-            dataset_name=dataset_name,
-            is_active=True,
-        )
-        self.session_mgr.put_session(session)
-
-        logger.info(f"Created new session for {username} with id {session.id}")
-        return session
+            logger.info(f"Created new session for {username} with id {session.id}")
+            return session
 
     def get_session(self, session_id):
-        return self.session_mgr.get_session(session_id)
+        with tracer.start_as_current_span("get_session", attributes=locals()):
+            return self.session_mgr.get_session(session_id)
 
     def close_session(self, session_id):
         """Close session by id"""
+        with tracer.start_as_current_span("close_session", attributes=locals()):
+            # TODO: decide if close session remove the entry from etcd
+            #       or just set the flag is_active to false
 
-        # TODO: decide if close session remove the entry from etcd
-        #       or just set the flag is_active to false
+            # session = self.session_mgr.get_session(session_id)
+            # if not session.is_active:
+            #     raise SessionIsNotActiveError(session_id)
 
-        # session = self.session_mgr.get_session(session_id)
-        # if not session.is_active:
-        #     raise SessionIsNotActiveError(session_id)
+            # session.is_active = False
+            # self.session_mgr.put_session(session)
 
-        # session.is_active = False
-        # self.session_mgr.put_session(session)
-
-        if not self.session_mgr.exists_session(session_id):
-            raise SessionDoesNotExistError(session_id)
-        # self.session_mgr.delete_session(session_id)
+            if not self.session_mgr.exists_session(session_id):
+                raise SessionDoesNotExistError(session_id)
+            # self.session_mgr.delete_session(session_id)
 
     ###################
     # Dataset Manager #
@@ -146,29 +148,31 @@ class MetadataService:
         Raises:
             Exception('Account is not valid!'): If wrong credentials
         """
+        with tracer.start_as_current_span("new_dataset", attributes=locals()):
 
-        # Validates account credentials
-        account = self.account_mgr.get_account(username)
-        if not account.verify(password):
-            raise AccountInvalidCredentialsError(username)
+            # Validates account credentials
+            account = self.account_mgr.get_account(username)
+            if not account.verify(password):
+                raise AccountInvalidCredentialsError(username)
 
-        # Creates new dataset and updates account's list of datasets
-        dataset = Dataset(dataset_name, username)
-        account.datasets.append(dataset_name)
+            # Creates new dataset and updates account's list of datasets
+            dataset = Dataset(dataset_name, username)
+            account.datasets.append(dataset_name)
 
-        # Put new dataset to etcd and updates account metadata
-        # Order matters to check that dataset name is not registered
-        self.dataset_mgr.new_dataset(dataset)
-        self.account_mgr.put_account(account)
+            # Put new dataset to etcd and updates account metadata
+            # Order matters to check that dataset name is not registered
+            self.dataset_mgr.new_dataset(dataset)
+            self.account_mgr.put_account(account)
 
-        logger.info(f"Created {dataset.name} dataset for {username} account")
+            logger.info(f"Created {dataset.name} dataset for {username} account")
 
     #####################
     # Metaclass Manager #
     #####################
 
     def get_metaclass(self, metaclass_id):
-        return self.metaclass_mgr.get_metaclass(metaclass_id)
+        with tracer.start_as_current_span("get_metaclass", attributes=locals()):
+            return self.metaclass_mgr.get_metaclass(metaclass_id)
 
     #####################
     # Dataclay Metadata #
@@ -176,138 +180,150 @@ class MetadataService:
 
     def get_dataclay_id(self):
         """Get the dataclay id"""
-        dataclay = self.dataclay_mgr.get_dataclay("this")
-        return dataclay.id
+        with tracer.start_as_current_span("get_dataclay_id"):
+            dataclay = self.dataclay_mgr.get_dataclay("this")
+            return dataclay.id
 
     def get_num_objects(self, language):
-        all_object_md = self.object_mgr.get_all_object_md(language)
-        return len(all_object_md)
+        with tracer.start_as_current_span("get_num_objects", attributes=locals()):
+            all_object_md = self.object_mgr.get_all_object_md(language)
+            return len(all_object_md)
 
     def autoregister_mds(self, id, hostname, port, is_this=False):
         """Autoregister Metadata Service"""
-        dataclay = Dataclay(id, hostname, port, is_this)
-        self.dataclay_mgr.new_dataclay(dataclay)
+        with tracer.start_as_current_span("autoregister_mds", attributes=locals()):
+            dataclay = Dataclay(id, hostname, port, is_this)
+            self.dataclay_mgr.new_dataclay(dataclay)
 
     def get_dataclay(self, dataclay_id):
-        return self.dataclay_mgr.get_dataclay(dataclay_id)
+        with tracer.start_as_current_span("get_dataclay", attributes=locals()):
+            return self.dataclay_mgr.get_dataclay(dataclay_id)
 
     #####################
     # EE-SL information #
     #####################
 
     def get_storage_location(self, sl_name):
-        return self.dataclay_mgr.get_storage_location(sl_name)
+        with tracer.start_as_current_span("get_storage_location", attributes=locals()):
+            return self.dataclay_mgr.get_storage_location(sl_name)
 
+    @tracer.start_as_current_span("get_all_execution_environments")
     def get_all_execution_environments(self, language, get_external=True, from_backend=False):
         """Get all execution environments"""
-
         # TODO: get_external should
         # TODO: Use exposed_ip_for_client if not from_backend to hide information?
         return self.dataclay_mgr.get_all_execution_environments(language)
 
     def autoregister_ee(self, id, hostname, port, sl_name, lang):
         """Autoregister execution environment"""
-
-        # TODO: Check if ee already exists. If so, update its information.
-        # TODO: Check connection to ExecutionEnvironment
-        exe_env = ExecutionEnvironment(id, hostname, port, sl_name, lang, self.get_dataclay_id())
-        self.dataclay_mgr.new_execution_environment(exe_env)
-        # TODO: Deploy classes to backend? (better call from ee)
+        with tracer.start_as_current_span("autoregister_ee", attributes=locals()):
+            # TODO: Check if ee already exists. If so, update its information.
+            # TODO: Check connection to ExecutionEnvironment
+            exe_env = ExecutionEnvironment(
+                id, hostname, port, sl_name, lang, self.get_dataclay_id()
+            )
+            self.dataclay_mgr.new_execution_environment(exe_env)
+            # TODO: Deploy classes to backend? (better call from ee)
 
     ###################
     # Object Metadata #
     ###################
 
     def register_object(self, session_id, object_md):
+        with tracer.start_as_current_span(
+            "register_object",
+            attributes={"session_id": session_id, "object_id": object_md.id},
+        ):
+            # NOTE: If only EE can register objects, no need to check session
+            # Checks that session exists and is active
+            # session = self.session_mgr.get_session(session_id)
+            # if not session.is_active:
+            #     raise SessionIsNotActiveError(session_id)
 
-        # NOTE: If only EE can register objects, no need to check session
-        # Checks that session exists and is active
-        # session = self.session_mgr.get_session(session_id)
-        # if not session.is_active:
-        #     raise SessionIsNotActiveError(session_id)
+            # NOTE: If a session can just access one dataset, then this
+            # dataset will always be the session's default dataset.
+            # object_md.dataset_name = session.dataset_name
 
-        # NOTE: If a session can just access one dataset, then this
-        # dataset will always be the session's default dataset.
-        # object_md.dataset_name = session.dataset_name
-
-        self.object_mgr.register_object(object_md)
+            self.object_mgr.register_object(object_md)
 
     def update_object(self, session_id, object_md):
-
-        # NOTE: If only EE can update objects, no need to check session
-        # Checks that session exists and is active
-        # session = self.session_mgr.get_session(session_id)
-        # if not session.is_active:
-        #     raise SessionIsNotActiveError(session_id)
-
-        # NOTE: If a session can just access one dataset, then this
-        # dataset will always be the session's default dataset.
-        # object_md.dataset_name = session.dataset_name
-
-        self.object_mgr.update_object(object_md)
-
-    def get_object_from_alias(self, session_id, alias_name, dataset_name, check_session=False):
-        # TODO: Create generic get_object_md, that can be obtained with alias + datset
-        #       or with object_id. It should return an ObjectMetadata object.
-
-        if check_session:
+        with tracer.start_as_current_span(
+            "update_object", attributes={"session_id": session_id, "object_id": object_md.id}
+        ):
+            # NOTE: If only EE can update objects, no need to check session
             # Checks that session exists and is active
-            session = self.session_mgr.get_session(session_id)
-            if not session.is_active:
-                raise SessionIsNotActiveError(session_id)
+            # session = self.session_mgr.get_session(session_id)
+            # if not session.is_active:
+            #     raise SessionIsNotActiveError(session_id)
 
-            # Checks that datset_name is empty or equal to session's dataset
-            if not dataset_name:
-                dataset_name = session.dataset_name
-            elif dataset_name != session.dataset_name:
-                raise DatasetIsNotAccessibleError(dataset_name, session.username)
+            # NOTE: If a session can just access one dataset, then this
+            # dataset will always be the session's default dataset.
+            # object_md.dataset_name = session.dataset_name
 
-        alias = self.object_mgr.get_alias(alias_name, dataset_name)
-        object_md = self.object_mgr.get_object_md(alias.object_id)
-        return alias.object_id, object_md.class_id, object_md.ee_id
+            self.object_mgr.update_object(object_md)
 
     def get_object_md_by_id(self, object_id, session_id=None, check_session=False):
-        if check_session:
-            session = self.session_mgr.get_session(session_id)
-            if not session.is_active:
-                raise SessionIsNotActiveError(session_id)
+        with tracer.start_as_current_span(
+            "get_object_md_by_id",
+            attributes={"object_id": object_id, "check_session": check_session},
+        ):
+            if check_session:
+                session = self.session_mgr.get_session(session_id)
+                if not session.is_active:
+                    raise SessionIsNotActiveError(session_id)
 
-        object_md = self.object_mgr.get_object_md(object_id)
-        return object_md
+            object_md = self.object_mgr.get_object_md(object_id)
+            return object_md
 
     def get_object_md_by_alias(
         self, alias_name, dataset_name, session_id=None, check_session=False
     ):
-        if check_session:
-            # Checks that session exists and is active
-            session = self.session_mgr.get_session(session_id)
-            if not session.is_active:
-                raise SessionIsNotActiveError(session_id)
+        with tracer.start_as_current_span(
+            "get_object_md_by_alias",
+            attributes={
+                "alias_name": alias_name,
+                "dataset_name": dataset_name,
+                "check_session": check_session,
+            },
+        ):
+            if check_session:
+                # Checks that session exists and is active
+                session = self.session_mgr.get_session(session_id)
+                if not session.is_active:
+                    raise SessionIsNotActiveError(session_id)
 
-            # Checks that datset_name is empty or equal to session's dataset
-            if not dataset_name:
-                dataset_name = session.dataset_name
-            elif dataset_name != session.dataset_name:
-                raise DatasetIsNotAccessibleError(dataset_name, session.username)
+                # Checks that datset_name is empty or equal to session's dataset
+                if not dataset_name:
+                    dataset_name = session.dataset_name
+                elif dataset_name != session.dataset_name:
+                    raise DatasetIsNotAccessibleError(dataset_name, session.username)
 
-        alias = self.object_mgr.get_alias(alias_name, dataset_name)
-        object_md = self.object_mgr.get_object_md(alias.object_id)
-        return object_md
+            alias = self.object_mgr.get_alias(alias_name, dataset_name)
+            object_md = self.object_mgr.get_object_md(alias.object_id)
+            return object_md
 
     def delete_alias(self, session_id, alias_name, dataset_name, check_session=False):
+        with tracer.start_as_current_span(
+            "delete_alias",
+            attributes={
+                "alias_name": alias_name,
+                "dataset_name": dataset_name,
+                "check_session": check_session,
+            },
+        ):
 
-        # NOTE: If the session is not checked, we supose the dataset_name is correct
-        #       since only the EE is able to set check_session to False
-        if check_session:
-            # Checks that session exist and is active
-            session = self.session_mgr.get_session(session_id)
-            if not session.is_active:
-                raise SessionIsNotActiveError(session_id)
+            # NOTE: If the session is not checked, we supose the dataset_name is correct
+            #       since only the EE is able to set check_session to False
+            if check_session:
+                # Checks that session exist and is active
+                session = self.session_mgr.get_session(session_id)
+                if not session.is_active:
+                    raise SessionIsNotActiveError(session_id)
 
-            # Check that the dataset_name is the same as session's dataset
-            if not dataset_name:
-                dataset_name = session.dataset_name
-            elif dataset_name != session.dataset_name:
-                raise DatasetIsNotAccessibleError(dataset_name, session.username)
+                # Check that the dataset_name is the same as session's dataset
+                if not dataset_name:
+                    dataset_name = session.dataset_name
+                elif dataset_name != session.dataset_name:
+                    raise DatasetIsNotAccessibleError(dataset_name, session.username)
 
-        self.object_mgr.delete_alias(alias_name, dataset_name)
+            self.object_mgr.delete_alias(alias_name, dataset_name)
