@@ -224,6 +224,7 @@ class MetadataService:
             )
             self.dataclay_mgr.new_execution_environment(exe_env)
             # TODO: Deploy classes to backend? (better call from ee)
+            logger.info(f"Autoregistered ee with id={id}, hostname={hostname}, port={port}, sl_name={sl_name}")
 
     ###################
     # Object Metadata #
