@@ -4,10 +4,10 @@ from concurrent import futures
 
 import grpc
 from dataclay_common.protos import metadata_service_pb2_grpc
+from dataclay_common.metadata_service import MetadataService
 
 from dataclay_mds.conf import settings
 from dataclay_mds.grpc.servicer.metadata_service_servicer import MetadataServiceServicer
-from dataclay_mds.metadata_service import MetadataService
 
 logger = logging.getLogger(__name__)
 
