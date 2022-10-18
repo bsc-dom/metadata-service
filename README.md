@@ -5,3 +5,12 @@ To install a Python package in “editable”/”development” mode Change dire
 ```bash
 python -m pip install -e .
 ```
+
+
+# PUBLSIH
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 \
+-t bscdataclay/dspython:edge \
+--build-arg PYTHON_VERSION=3.10-bullseye --push .
+```
