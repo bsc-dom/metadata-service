@@ -1,4 +1,6 @@
-# metadata-service
+# DEPRECATED - metadata-service
+
+This code has been moved to pyclay.
 
 To install a Python package in “editable”/”development” mode Change directory to the root of the project directory and run:
 
@@ -7,7 +9,7 @@ python -m pip install -e .
 ```
 
 
-# PUBLSIH
+# PUBLISH
 
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 \
